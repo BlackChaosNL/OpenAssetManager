@@ -1,0 +1,40 @@
+version: "3.7"
+
+services:
+  caddy:
+    image: caddy:<version>
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile
+      - caddy_data:/data
+      - caddy_config:/config
+
+  fastapi:
+    container_name: "fastapi"
+    restart: unless-stopped
+    build:
+      context: ./api/asset_manager
+      dockerfile: ./Dockerfile
+    ports:
+      - 8000:8000
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 5m
+      timeout: 5s
+      retries: 3
+      start_period: 15s
+    links:
+      - "postgres"
+
+  postgres:
+    container_name: "postgres"
+    image: postgres
+    restart: unless-stopped
+
+volumes:
+  caddy_data:
+  caddy_config:
