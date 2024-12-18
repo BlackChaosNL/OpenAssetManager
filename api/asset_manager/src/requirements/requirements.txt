@@ -1,0 +1,7 @@
+aerich==0.8.0
+fastapi[standard]==0.115.5
+uvicorn==0.31.1
+tortoise-orm[asyncpg]==0.22.1
+black==24.10.0
+python-dotenv==1.0.1
+uvicorn[standard]==0.34.0
