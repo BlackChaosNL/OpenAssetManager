@@ -80,14 +80,14 @@
 /api/**/pyrightconfig.json
 
 #react
-/web/oam/**/.DS_*
-/web/oam/**/*.log
-/web/oam/**/logs/
-/web/oam/**/*.backup.*
-/web/oam/**/*.back.*
-/web/oam/**/node_modules
-/web/oam/**/bower_components
-/web/oam/**/*.sublime*
-/web/oam/**/psd
-/web/oam/**/thumb
-/web/oam/**/sketch
+/web/**/.DS_*
+/web/**/*.log
+/web/**/logs/
+/web/**/*.backup.*
+/web/**/*.back.*
+/web/**/node_modules
+/web/**/bower_components
+/web/**/*.sublime*
+/web/**/psd
+/web/**/thumb
+/web/**/sketch
