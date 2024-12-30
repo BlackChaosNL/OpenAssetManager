@@ -11,7 +11,7 @@ class Settings(BaseSettings):
     PSQL_CONNECT_STR: str | None = None
     ACCESS_TOKEN_EXPIRE_MIN: int = 30
     REFRESH_TOKEN_EXPIRE_MIN: int = 60
-    DEFAULT_TIMEZONE = pytz.UTC
+    DEFAULT_TIMEZONE: str = pytz.UTC._tzname
 
     model_config = SettingsConfigDict(env_file=".env")
 

@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from starlette.responses import RedirectResponse
 from src.config import settings
-from modules.assets.router import router as asset_router
+from src.modules.assets.router import router as asset_router
 from tortoise.contrib.fastapi import register_tortoise
 from src.database import db_url, modules
 

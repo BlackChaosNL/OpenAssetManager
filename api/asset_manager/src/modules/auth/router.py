@@ -12,9 +12,10 @@ router = APIRouter(prefix="/auth")
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
-ACCESS_TOKEN_EXPIRE_MINUTES = settings.ACCESS_TOKEN_EXPIRE_MINUTES
+ACCESS_TOKEN_EXPIRE_MINUTES = settings.ACCESS_TOKEN_EXPIRE_MIN
 
 error: str = "E-Mail Address or password is incorrect"
+
 
 @router.post("/")
 async def login(email: str, password: str):
@@ -24,9 +25,11 @@ async def login(email: str, password: str):
     if user.check_against_password(password) is False:
         HTTPException(status_code=401, detail=error)
 
+
 @router.post("/refresh")
 async def refresh_login():
     pass
+
 
 @router.post("/register")
 async def register():
