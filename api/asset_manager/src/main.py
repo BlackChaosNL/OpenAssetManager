@@ -1,13 +1,9 @@
-
 from fastapi import FastAPI
 from starlette.responses import RedirectResponse
-from .config import settings
-from .modules.assets.router import router as asset_router
-from dotenv import load_dotenv
+from src.config import settings
+from modules.assets.router import router as asset_router
 from tortoise.contrib.fastapi import register_tortoise
-from .database import db_url, modules
-
-load_dotenv()
+from src.database import db_url, modules
 
 app = FastAPI(
     title=settings.PROJECT_NAME,
@@ -24,6 +20,7 @@ register_tortoise(
 )
 
 app.include_router(asset_router)
+
 
 @app.get("/")
 async def main():
