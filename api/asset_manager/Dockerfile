@@ -1,17 +1,19 @@
+# Sets up the API before preventing root access to the alpine image
 FROM python:3.13-alpine
 
-WORKDIR /app
+WORKDIR /src
+
+COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/
+
+COPY ./src/ /src/
+
+RUN apk upgrade --no-cache &&\
+    uv pip install --system -r /src/requirements/requirements.txt
 
 RUN adduser -D nonroot
 USER nonroot
 
-COPY ./src/ /app/
-
-RUN pip install --upgrade pip &&\
-    pip install uv &&\
-    uv pip install --user --no-cache-dir --upgrade -r /code/requirements/requirements.txt
-
 EXPOSE 8000
 
 ENTRYPOINT ["python", "-m"]
-CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
+CMD ["fastapi", "run"]
