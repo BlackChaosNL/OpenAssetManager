@@ -21,7 +21,6 @@ register_tortoise(
 
 app.include_router(asset_router)
 
-
 @app.get("/")
 async def main():
     return RedirectResponse(url="/docs")
