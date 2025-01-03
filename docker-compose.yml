@@ -74,9 +74,9 @@ services:
       - PGPOOL_SR_CHECK_PASSWORD=${POSTGRESQL_PASSWORD:-passwd}
       - PGPOOL_ENABLE_LDAP=no
       - PGPOOL_POSTGRES_USERNAME=${PGPOOL_POSTGRES_USERNAME}
-      - PGPOOL_POSTGRES_PASSWORD=${PGPOOL_POSTGRES_PASSWORD:-password}
+      - PGPOOL_POSTGRES_PASSWORD=${POSTGRESQL_ADMIN_PASSWD:-password}
       - PGPOOL_ADMIN_USERNAME=${PGPOOL_ADMIN_USERNAME:-admin}
-      - PGPOOL_ADMIN_PASSWORD=${REPMGR_PASSWORD:-adminpassword}
+      - PGPOOL_ADMIN_PASSWORD=${PGPOOL_ADMIN_PASSWORD:-adminpassword}
     healthcheck:
       test: ["CMD", "/opt/bitnami/scripts/pgpool/healthcheck.sh"]
       interval: 10s
