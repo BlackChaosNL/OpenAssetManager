@@ -1,12 +1,12 @@
-import os
-
-from fastapi.security import OAuth2PasswordBearer
+from typing import Annotated
+from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 
 from fastapi.routing import APIRouter
-from src.modules.auth.schemas import UserModel
-from src.models import User
-from fastapi import HTTPException
-from src.config import settings
+from modules.users.models import User
+from fastapi import Depends, HTTPException
+from config import settings
+from tortoise.expressions import Q
+from authlib.jose import jwt  # type: ignore
 
 router = APIRouter(prefix="/auth")
 
@@ -16,13 +16,17 @@ ACCESS_TOKEN_EXPIRE_MINUTES = settings.ACCESS_TOKEN_EXPIRE_MIN
 
 error: str = "E-Mail Address or password is incorrect"
 
+crypt = settings.CRYPT
+
 
 @router.post("/")
-async def login(email: str, password: str):
-    user: User = await User.get_or_none(email=email)
+async def login(form: Annotated[OAuth2PasswordRequestForm, Depends()]):
+    user: User = await User.filter(Q(email=form.username)).get_or_none()
+
     if user is None:
         HTTPException(status_code=401, detail=error)
-    if user.check_against_password(password) is False:
+
+    if user.check_against_password(form.password) is False:
         HTTPException(status_code=401, detail=error)
 
 

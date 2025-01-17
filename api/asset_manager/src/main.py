@@ -1,9 +1,10 @@
 from fastapi import FastAPI
+from fastapi.responses import JSONResponse
 from starlette.responses import RedirectResponse
-from src.config import settings
-from src.modules.assets.router import router as asset_router
+from config import settings
+from modules.assets.router import router as asset_router
 from tortoise.contrib.fastapi import register_tortoise
-from src.database import db_url, modules
+from database import db_url, modules
 
 app = FastAPI(
     title=settings.PROJECT_NAME,
@@ -24,3 +25,7 @@ app.include_router(asset_router)
 @app.get("/")
 async def main():
     return RedirectResponse(url="/docs")
+
+@app.get("/ping")
+async def ping() -> JSONResponse:
+    return JSONResponse("PONG")

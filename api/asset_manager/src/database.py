@@ -1,6 +1,6 @@
 from typing_extensions import Any
 from tortoise import Tortoise
-from src.config import settings
+from config import settings
 
 db_url = settings.PSQL_CONNECT_STR
 modules: dict[str, Any] = {
