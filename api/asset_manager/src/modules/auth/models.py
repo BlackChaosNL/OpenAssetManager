@@ -15,8 +15,8 @@ class Token(Model, CMDMixin):
     """
 
     id: uuid = fields.UUIDField(primary_key=True)
-    user: uuid = fields.ForeignKeyField("modules.users.models.User")
-    token_type: str = fields.CharField(max_length=128, default="bearer")
+    user: uuid = fields.ForeignKeyField("models.User")
+    token_type: str = fields.CharField(max_length=128, default="Bearer")
     access_token: str = fields.CharField(max_length=128, null=True)
     refresh_token: str = fields.CharField(max_length=128, null=True)
     disabled: bool = fields.BooleanField(default=False)

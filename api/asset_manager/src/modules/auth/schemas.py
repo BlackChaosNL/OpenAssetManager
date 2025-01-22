@@ -1,7 +1,5 @@
 from tortoise.contrib.pydantic import pydantic_model_creator
 
-from src.models import Organization, User
+from modules.auth.models import Token
 
-OrganizationModel = pydantic_model_creator(Organization)
-
-UserModel = pydantic_model_creator(User)
+TokenModel = pydantic_model_creator(Token)

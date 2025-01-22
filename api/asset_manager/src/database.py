@@ -2,17 +2,18 @@ from typing_extensions import Any
 from tortoise import Tortoise
 from config import settings
 
-db_url = settings.PSQL_CONNECT_STR
 modules: dict[str, Any] = {
     "models": [
-        ".models",
-        ".modules.auth.models",
-        ".modules.assets.models",
+        "models",
+        "modules.assets.models",
+        "modules.auth.models",
+        "modules.users.models",
+        "modules.organizations.models",
     ]
 }
 
 TORTOISE_ORM = {
-    "connections": {"default": db_url},
+    "connections": {"default": settings.PSQL_CONNECT_STR},
     "apps": {
         "models": {
             "models": modules.get("models", []) + ["aerich.models"],
@@ -23,7 +24,7 @@ TORTOISE_ORM = {
 
 
 async def init_db():
-    await Tortoise.init(db_url=db_url, modules=modules)
+    await Tortoise.init(db_url=settings.PSQL_CONNECT_STR, modules=modules)
 
 
 async def migrate_db():

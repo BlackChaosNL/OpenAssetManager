@@ -33,7 +33,7 @@ class User(Model, CMDMixin):
         on_delete=fields.NO_ACTION,
     )
     disabled: bool = fields.BooleanField(default=False)
-    tokens = fields.ForeignKeyField("modules.auth.models.Token")
+    # tokens = fields.ForeignKeyField("models.Token")
 
     def __str__(self) -> str:
         return f"{self.id} - {self.name} {self.surname}"
