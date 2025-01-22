@@ -28,6 +28,4 @@ async def init_db():
 
 async def migrate_db():
     await init_db()
-
-    # Generate the schema
     await Tortoise.generate_schemas(safe=True)
