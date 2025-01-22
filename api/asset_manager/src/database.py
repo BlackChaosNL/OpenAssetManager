@@ -4,7 +4,6 @@ from config import settings
 
 modules: dict[str, Any] = {
     "models": [
-        "models",
         "modules.assets.models",
         "modules.auth.models",
         "modules.users.models",
