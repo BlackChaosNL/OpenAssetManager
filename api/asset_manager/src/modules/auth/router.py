@@ -36,7 +36,7 @@ async def login(form: Annotated[OAuth2PasswordRequestForm, Depends()]):
 
     return JSONResponse(
         await Token.create(
-            user=f"id:{user.id}",
+            user=user.id,
             access_token=create_token(
                 user_id=user.id, offset=timedelta(settings.ACCESS_TOKEN_EXPIRE_MIN)
             ),

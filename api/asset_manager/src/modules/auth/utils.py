@@ -23,7 +23,7 @@ def create_token(user_id: uuid, offset: float) -> str:
         {"alg": settings.HASHING_SCHEME, "typ": "JWT"},
         {
             "iss": "",
-            "sub": user_id,
+            "sub": f"id:{user_id}",
             "nbf": curr_time,
             "iat": curr_time,
             "exp": int(curr_time + offset),
