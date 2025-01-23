@@ -6,13 +6,6 @@ from joserfc.jwt import OctKey  # type: ignore
 crypt = settings.CRYPT
 
 
-def crypt_password(password) -> str:
-    """
-    Creates a hash from the "Password" given, that can then be checked against the DB.
-    """
-    return crypt.hash(password, settings.HASHING_SCHEME)
-
-
 def create_token(user_id: uuid, offset: float) -> str:
     """
     Creates a JWT token
