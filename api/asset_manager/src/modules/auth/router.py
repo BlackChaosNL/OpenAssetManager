@@ -4,7 +4,7 @@ from fastapi.responses import JSONResponse
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 
 from fastapi.routing import APIRouter
-from utils import create_token, crypt_password
+from utils import create_token
 from models import Token
 from modules.users.models import User
 from fastapi import Depends, HTTPException
