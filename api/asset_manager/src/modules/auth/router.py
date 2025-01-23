@@ -25,7 +25,7 @@ crypt = settings.CRYPT
 @router.post("/", response_model=TokenModel)
 async def login(form: Annotated[OAuth2PasswordRequestForm, Depends()]):
     user: User = await User.filter(
-        Q(email=form.username) & Q(password=crypt_password(form.password))
+        Q(email=form.username)
     ).get_or_none()
 
     if user is None:
