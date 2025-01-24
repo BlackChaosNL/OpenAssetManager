@@ -4,16 +4,15 @@ from fastapi.responses import JSONResponse
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 
 from fastapi.routing import APIRouter
-from utils import create_token
-from models import Token
+from modules.auth.utils import create_token
+from modules.auth.models import Token
 from modules.users.models import User
 from fastapi import Depends, HTTPException
 from config import settings
 from tortoise.expressions import Q
-from schemas import TokenModel
 
 
-router = APIRouter(prefix="/auth")
+router = APIRouter(prefix="/api/v1/auth", tags=["auth"])
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
@@ -22,17 +21,17 @@ error: str = "E-Mail Address or password is incorrect"
 crypt = settings.CRYPT
 
 
-@router.post("/", response_model=TokenModel)
+@router.post("/", status_code=200)
 async def login(form: Annotated[OAuth2PasswordRequestForm, Depends()]):
-    user: User = await User.filter(
+    user: User | None = await User.filter(
         Q(email=form.username)
     ).get_or_none()
 
     if user is None:
-        HTTPException(status_code=401, detail=error)
+        return HTTPException(status_code=401, detail=error)
 
     if user.check_against_password(form.password) is False:
-        HTTPException(status_code=401, detail=error)
+        return HTTPException(status_code=401, detail=error)
 
     return JSONResponse(
         await Token.create(

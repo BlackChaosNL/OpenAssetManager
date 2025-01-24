@@ -1,4 +1,17 @@
+[tool.black]
+exclude = '''/
+    # Default values for Black.
+    \.eggs|\.git|\.hg|\.mypy_cache|\.nox|\.tox|\.venv|\.svn|_build|buck-out|build|dist|
+/'''
+line-length = 88
+
 [tool.aerich]
 tortoise_orm = "database.TORTOISE_ORM"
 location = "./migrations"
 src_folder = "./."
+
+[tool.pytest.ini_options]
+asyncio_default_fixture_loop_scope = "session"
+testpaths = [
+    "tests/",
+]

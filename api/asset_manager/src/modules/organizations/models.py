@@ -6,7 +6,7 @@ from tortoise.exceptions import ConfigurationError
 from tortoise.models import Model
 from tortoise import fields
 
-from models import CMDMixin
+from mixins.CMDMixin import CMDMixin
 from config import settings
 
 class EnumField(fields.CharField):
@@ -45,11 +45,11 @@ class OrganizationType(Enum):
     There are no seat costs.
     """
 
-    HOME: int = 1  # Home use (Any size)
-    SMALL_ORGANIZATION: int = 2  # 1-100
-    MEDIUM_ORGANIZATION: int = 3  # 100 - 500
-    LARGE_ORGANIZATION: int = 4  # 500 - 1000
-    EXTRA_LARGE_ORGANIZATION: int = 5  # 1000 - 5000+
+    HOME: str = "home"  # Home use (Any size)
+    SMALL_ORGANIZATION: str = "s_org"  # 1-100
+    MEDIUM_ORGANIZATION: str = "m_org"  # 100 - 500
+    LARGE_ORGANIZATION: str = "l_org"  # 500 - 1000
+    EXTRA_LARGE_ORGANIZATION: str = "xl_org"  # 1000 - 5000+
 
 
 

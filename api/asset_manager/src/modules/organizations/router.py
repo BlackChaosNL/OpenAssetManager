@@ -1,7 +1,7 @@
 from fastapi import APIRouter
 
 
-router = APIRouter(prefix="/organizations")
+router = APIRouter(prefix="/api/v1/organizations")
 
 @router.get("/")
 def all_organizations():

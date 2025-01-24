@@ -3,7 +3,7 @@ from tortoise import fields
 import uuid
 from datetime import datetime
 
-from models import CMDMixin
+from mixins.CMDMixin import CMDMixin
 from config import settings
 
 

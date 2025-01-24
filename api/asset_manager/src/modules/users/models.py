@@ -5,7 +5,7 @@ from tortoise.models import Model
 from tortoise import fields
 
 from modules.organizations.models import Organization
-from models import CMDMixin
+from mixins.CMDMixin import CMDMixin
 from config import settings
 
 crypt = settings.CRYPT

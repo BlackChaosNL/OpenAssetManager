@@ -23,7 +23,7 @@ TORTOISE_ORM = {
 
 
 async def init_db():
-    await Tortoise.init(db_url=settings.PSQL_CONNECT_STR, modules=modules)
+    await Tortoise.init(config=TORTOISE_ORM)
 
 
 async def migrate_db():

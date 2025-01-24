@@ -1,7 +1,6 @@
 import uuid, time
 from config import settings
 from joserfc import jwt  # type: ignore
-from joserfc.jwt import OctKey  # type: ignore
 
 crypt = settings.CRYPT
 
@@ -21,7 +20,7 @@ def create_token(user_id: uuid, offset: float) -> str:
             "iat": curr_time,
             "exp": int(curr_time + offset),
         },
-        OctKey.import_key(settings.SECRET_KEY),
+        settings.SECRET_KEY,
     )
 
 

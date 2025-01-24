@@ -2,8 +2,6 @@ from uuid import UUID
 
 from fastapi.routing import APIRouter
 
-from modules.assets.models import Asset
-
 router = APIRouter(
     prefix="/assets"
 )
