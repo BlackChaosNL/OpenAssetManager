@@ -1,16 +1,15 @@
-from fastapi.testclient import TestClient
-from main import app
+import pytest
+from httpx import AsyncClient
 
-client = TestClient(app)
 
-def setup_function():
-    print("setting up")
+@pytest.mark.anyio
+async def test_read_main(client: AsyncClient):
+    response = await client.get("http://localhost:8000/api/v1/")
+    assert response.status_code == 307
 
-def test_read_main():
-    response = client.get("/api/v1/")
-    assert response.status_code == 200
 
-def test_get_pong():
-    response = client.get("/api/v1/ping")
+@pytest.mark.anyio
+async def test_get_pong(client: AsyncClient):
+    response = await client.get("http://localhost:8000/api/v1/ping")
     assert response.status_code == 200
     assert response.text == '"PONG"'

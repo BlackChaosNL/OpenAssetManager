@@ -8,10 +8,13 @@ joserfc>=1.0.1
 passlib>=1.7.4
 pytz>=2024.2
 ptpython>=0.25
+msgspec>=0.19.0
 
 # Test Suite
 httpx>=0.28.1
 pytest>=8.3.4
 mock>=5.1.0
 pytest-mock>=3.14.0
-anyio>=4.8.0
+pytest-asyncio>=0.25.3
+asyncio>=3.4.3
+asgi-lifespan>=2.1.0

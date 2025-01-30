@@ -12,7 +12,18 @@ modules: dict[str, Any] = {
 }
 
 TORTOISE_ORM = {
-    "connections": {"default": settings.PSQL_CONNECT_STR},
+    "connections": {
+        "default": {
+            "engine": "tortoise.backends.asyncpg",
+            "credentials": {
+                "host": settings.PSQL_HOSTNAME,
+                "database": settings.PSQL_DB_NAME,
+                "user": settings.PSQL_USERNAME,
+                "password": settings.PSQL_PASSWORD,
+                "port": settings.PSQL_PORT,
+            },
+        }
+    },
     "apps": {
         "models": {
             "models": modules.get("models", []) + ["aerich.models"],

@@ -21,17 +21,17 @@ error: str = "E-Mail Address or password is incorrect"
 crypt = settings.CRYPT
 
 
-@router.post("/", status_code=200)
+@router.post("/")
 async def login(form: Annotated[OAuth2PasswordRequestForm, Depends()]):
     user: User | None = await User.filter(
         Q(email=form.username)
     ).get_or_none()
 
     if user is None:
-        return HTTPException(status_code=401, detail=error)
+        raise HTTPException(status_code=401, detail=error)
 
     if user.check_against_password(form.password) is False:
-        return HTTPException(status_code=401, detail=error)
+        raise HTTPException(status_code=401, detail=error)
 
     return JSONResponse(
         await Token.create(
