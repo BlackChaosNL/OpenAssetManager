@@ -67,17 +67,7 @@ CREATE TABLE IF NOT EXISTS "aerich" (
     "version" VARCHAR(255) NOT NULL,
     "app" VARCHAR(100) NOT NULL,
     "content" JSONB NOT NULL
-);
-CREATE TABLE IF NOT EXISTS "Membership" (
-    "organization_id" UUID NOT NULL REFERENCES "organization" ("id") ON DELETE NO ACTION,
-    "user_id" UUID NOT NULL REFERENCES "user" ("id") ON DELETE NO ACTION
-);
-CREATE UNIQUE INDEX IF NOT EXISTS "uidx_Membership_organiz_b0a446" ON "Membership" ("organization_id", "user_id");
-CREATE TABLE IF NOT EXISTS "Membership" (
-    "user_id" UUID NOT NULL REFERENCES "user" ("id") ON DELETE NO ACTION,
-    "organization_id" UUID NOT NULL REFERENCES "organization" ("id") ON DELETE NO ACTION
-);
-CREATE UNIQUE INDEX IF NOT EXISTS "uidx_Membership_user_id_cc48d3" ON "Membership" ("user_id", "organization_id");"""
+);"""
 
 
 async def downgrade(db: BaseDBAsyncClient) -> str:

@@ -9,7 +9,6 @@ from modules.auth.models import Token
 from modules.users.models import User
 from fastapi import Depends, HTTPException
 from config import settings
-from tortoise.expressions import Q
 
 
 router = APIRouter(prefix="/api/v1/auth", tags=["auth"])
@@ -23,27 +22,28 @@ crypt = settings.CRYPT
 
 @router.post("/")
 async def login(form: Annotated[OAuth2PasswordRequestForm, Depends()]):
-    user: User | None = await User.filter(
-        Q(email=form.username)
-    ).get_or_none()
-
+    user: User | None = await User.filter(email=form.username).first()
     if user is None:
         raise HTTPException(status_code=401, detail=error)
 
     if user.check_against_password(form.password) is False:
         raise HTTPException(status_code=401, detail=error)
 
-    return JSONResponse(
-        await Token.create(
-            user=user.id,
-            access_token=create_token(
-                user_id=user.id, offset=timedelta(settings.ACCESS_TOKEN_EXPIRE_MIN)
-            ),
-            refresh_token=create_token(
-                user_id=user.id, offset=timedelta(settings.REFRESH_TOKEN_EXPIRE_MIN)
-            ),
-        )
+    auth_token = create_token(
+        user_id=user.id, offset=timedelta(settings.ACCESS_TOKEN_EXPIRE_MIN)
     )
+
+    refresh_token = create_token(
+        user_id=user.id, offset=timedelta(settings.REFRESH_TOKEN_EXPIRE_MIN)
+    )
+
+    token = await Token.create(
+        user=user.id,
+        access_token=auth_token,
+        refresh_token=refresh_token,
+    )
+
+    return {"jwt": token}
 
 
 @router.post("/refresh")

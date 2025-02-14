@@ -1,3 +1,4 @@
+from datetime import timedelta
 import uuid, time
 from config import settings
 from joserfc import jwt  # type: ignore
@@ -5,20 +6,21 @@ from joserfc import jwt  # type: ignore
 crypt = settings.CRYPT
 
 
-def create_token(user_id: uuid, offset: float) -> str:
+def create_token(user_id: uuid, offset: timedelta) -> str:
     """
     Creates a JWT token
     """
+    user = str(user_id)
     curr_time = int(time.time())
 
     return jwt.encode(
-        {"alg": settings.HASHING_SCHEME, "typ": "JWT"},
+        {"alg": "HS256", "typ": "JWT"},
         {
             "iss": "",
-            "sub": f"id:{user_id}",
+            "sub": f"id:{user}",
             "nbf": curr_time,
             "iat": curr_time,
-            "exp": int(curr_time + offset),
+            "exp": int(time.time() + offset.total_seconds()),
         },
         settings.SECRET_KEY,
     )

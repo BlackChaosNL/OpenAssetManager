@@ -4,6 +4,7 @@ from fastapi.responses import JSONResponse, RedirectResponse
 
 router = APIRouter(prefix="/api/v1")
 
+
 @router.get("/")
 async def main() -> RedirectResponse:
     return RedirectResponse(url="/docs")
@@ -11,4 +12,4 @@ async def main() -> RedirectResponse:
 
 @router.get("/ping")
 async def ping() -> JSONResponse:
-    return JSONResponse("PONG")
+    return {"ping": "pong!"}

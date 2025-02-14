@@ -40,16 +40,14 @@ class User(Model, CMDMixin):
 
     def set_password(self, password: str) -> None:
         self.password = crypt.hash(
-            password,
-            settings.HASHING_SCHEME
+            password
         )
         self.save()  # Make sure to save the model in DB
 
     def check_against_password(self, password: str) -> bool:
         return crypt.verify(
             password,
-            self.password,
-            settings.HASHING_SCHEME
+            self.password
         )
     
     def update_password(self, old_password, new_password: str, verify_new_password: str) -> bool:

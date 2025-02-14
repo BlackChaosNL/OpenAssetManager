@@ -1,6 +1,7 @@
 from typing_extensions import Any
 from tortoise import Tortoise
 from config import settings
+from aerich import Command
 
 modules: dict[str, Any] = {
     "models": [
@@ -33,10 +34,11 @@ TORTOISE_ORM = {
 }
 
 
-async def init_db():
+async def migrate_db():
+    aerich = Command(tortoise_config=TORTOISE_ORM)
+    await aerich.init()
+    await aerich.upgrade(run_in_transaction=True)
     await Tortoise.init(config=TORTOISE_ORM)
 
-
-async def migrate_db():
-    await init_db()
-    await Tortoise.generate_schemas(safe=True)
+async def end_connections_to_db():
+    await Tortoise.close_connections()
