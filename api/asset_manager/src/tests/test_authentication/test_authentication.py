@@ -1,6 +1,7 @@
 import pytest  # type: ignore
 from httpx import AsyncClient
 from config import settings
+from unittest.mock import ANY
 
 crypt = settings.CRYPT
 
@@ -40,6 +41,7 @@ class TestAuthentication(object):
     async def test_authentication_with_existing_user_and_password(
         self, client: AsyncClient, use_admin_account
     ):
+        _, _, user, _ = use_admin_account
         response = await client.post(
             "http://localhost/api/v1/auth/",
             data={
@@ -49,4 +51,16 @@ class TestAuthentication(object):
             },
         )
         assert response.status_code == 200
-        assert response.text == ""
+        assert response.json() == {
+            "jwt": {
+                "created_at": ANY,
+                "user_id": str(user.id),
+                "id": ANY,
+                "modified_at": ANY,
+                "disabled_at": None,
+                "refresh_token": ANY,
+                "disabled": False,
+                "access_token": ANY,
+                "token_type": "Bearer",
+            }
+        }

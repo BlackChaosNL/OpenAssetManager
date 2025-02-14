@@ -10,7 +10,7 @@ crypt = settings.CRYPT
 async def use_user_account():
         org = await Organization.create(name="User's Organization", type="home")
         acl = await ACL.create(
-            READ=True, WRITE=True, REPORT=True, MANAGE=True, ADMIN=True
+            READ=True, WRITE=True, REPORT=True, MANAGE=False, ADMIN=False
         )
         user = await User.create(
             email="user@localhost.com",

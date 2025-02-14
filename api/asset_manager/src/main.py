@@ -17,7 +17,6 @@ from modules.organizations.router import router as organizations_router
 async def lifespan(_: FastAPI):
     await migrate_db()
     yield
-    print(_.state.testing)
     await end_connections_to_db()
 
 
