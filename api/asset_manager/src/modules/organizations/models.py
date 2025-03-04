@@ -20,7 +20,7 @@ class EnumField(fields.CharField):
             raise ConfigurationError("{} is not a subclass of Enum!".format(enum_type))
         self._enum_type = enum_type
 
-    def to_db_value(self, value: Enum, instance) -> str:
+    def to_db_value(self, value: Enum, _) -> str:
         return value.value
 
     def to_python_value(self, value: str) -> Enum:

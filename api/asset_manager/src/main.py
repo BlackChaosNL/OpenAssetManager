@@ -1,5 +1,4 @@
 from fastapi import FastAPI
-from tortoise import Tortoise
 from config import settings
 from database import end_connections_to_db, migrate_db
 from responses import msgspec_jsonresponse

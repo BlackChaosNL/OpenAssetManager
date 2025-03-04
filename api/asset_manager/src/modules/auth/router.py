@@ -23,10 +23,14 @@ crypt = settings.CRYPT
 @router.post("/")
 async def login(form: Annotated[OAuth2PasswordRequestForm, Depends()]):
     user: User | None = await User.filter(email=form.username).first()
+
     if user is None:
         raise HTTPException(status_code=401, detail=error)
 
     if user.check_against_password(form.password) is False:
+        raise HTTPException(status_code=401, detail=error)
+
+    if user.disabled is True:
         raise HTTPException(status_code=401, detail=error)
 
     auth_token = create_token(

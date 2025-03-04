@@ -26,6 +26,7 @@ class TestAuthentication(object):
     async def test_authentication_with_existing_user_and_wrong_password(
         self, client: AsyncClient, use_admin_account
     ):
+        _, _, _, _ = use_admin_account
         response = await client.post(
             "http://localhost/api/v1/auth/",
             data={
@@ -41,7 +42,7 @@ class TestAuthentication(object):
     async def test_authentication_with_existing_user_and_password(
         self, client: AsyncClient, use_admin_account
     ):
-        _, _, user, _ = use_admin_account
+        _, _, admin, _ = use_admin_account
         response = await client.post(
             "http://localhost/api/v1/auth/",
             data={
@@ -54,7 +55,7 @@ class TestAuthentication(object):
         assert response.json() == {
             "jwt": {
                 "created_at": ANY,
-                "user_id": str(user.id),
+                "user_id": str(admin.id),
                 "id": ANY,
                 "modified_at": ANY,
                 "disabled_at": None,

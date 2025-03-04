@@ -2,7 +2,6 @@ from pydantic_settings import BaseSettings, SettingsConfigDict  # type: ignore
 from passlib.context import CryptContext  # type: ignore
 import pytz
 
-
 class Settings(BaseSettings):
     PROJECT_NAME: str = "StoneEdge Asset Management System"
     PROJECT_VERSION: str = "0.0.1"

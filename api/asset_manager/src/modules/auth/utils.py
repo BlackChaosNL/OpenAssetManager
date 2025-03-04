@@ -2,6 +2,7 @@ from datetime import timedelta
 import uuid, time
 from config import settings
 from joserfc import jwt  # type: ignore
+from joserfc.jwk import OctKey # type: ignore
 
 crypt = settings.CRYPT
 
@@ -22,7 +23,7 @@ def create_token(user_id: uuid, offset: timedelta) -> str:
             "iat": curr_time,
             "exp": int(time.time() + offset.total_seconds()),
         },
-        settings.SECRET_KEY,
+        OctKey.import_key(settings.SECRET_KEY),
     )
 
 
