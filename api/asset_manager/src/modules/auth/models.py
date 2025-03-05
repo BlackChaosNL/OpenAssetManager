@@ -1,3 +1,4 @@
+import pytz
 from tortoise.models import Model
 from tortoise import fields
 import uuid
@@ -21,8 +22,8 @@ class Token(Model, CMDMixin):
     refresh_token: str = fields.TextField(null=True)
     disabled: bool = fields.BooleanField(default=False)
 
-    def delete(self) -> None:
+    async def delete(self) -> None:
         self.disabled = True
-        self.disabled_at = datetime.now(tz=settings.DEFAULT_TIMEZONE)
-        self.save()
+        self.disabled_at = datetime.now(tz=pytz.UTC)
+        await self.save()
 

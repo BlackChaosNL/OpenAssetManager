@@ -2,6 +2,7 @@ from datetime import datetime
 from enum import Enum
 from typing import Type
 import uuid
+import pytz
 from tortoise.exceptions import ConfigurationError
 from tortoise.models import Model
 from tortoise import fields
@@ -78,9 +79,9 @@ class Organization(Model, CMDMixin):
     def __str__(self) -> str:
         return f"{self.id} - {self.name}"
 
-    def delete(self) -> None:
+    async def delete(self) -> None:
         self.disabled = True
-        self.disabled_at = datetime.now(tz=settings.DEFAULT_TIMEZONE)
-        self.save()
+        self.disabled_at = datetime.now(tz=pytz.UTC)
+        await self.save()
 
 

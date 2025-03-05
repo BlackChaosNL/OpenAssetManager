@@ -1,3 +1,4 @@
+from fastapi.security import OAuth2PasswordBearer
 from pydantic_settings import BaseSettings, SettingsConfigDict  # type: ignore
 from passlib.context import CryptContext  # type: ignore
 import pytz
@@ -6,6 +7,7 @@ class Settings(BaseSettings):
     PROJECT_NAME: str = "StoneEdge Asset Management System"
     PROJECT_VERSION: str = "0.0.1"
     PROJECT_SUMMARY: str = "Product API for StoneEdge."
+    PROJECT_PUBLIC_URL: str = ""
     SECRET_KEY: str | None = None
     PSQL_USERNAME: str = "user"
     PSQL_PASSWORD: str = "password"
@@ -16,8 +18,8 @@ class Settings(BaseSettings):
     ACCESS_TOKEN_EXPIRE_MIN: int = 30
     REFRESH_TOKEN_EXPIRE_MIN: int = 60
     BACKEND_CORS_ORIGINS: list = ["*"]
-    DEFAULT_TIMEZONE: str = pytz.UTC._tzname
     CRYPT: CryptContext = CryptContext(schemes=["bcrypt"], deprecated="auto")
+    OAUTH2_SCHEME: OAuth2PasswordBearer = OAuth2PasswordBearer(tokenUrl="token")
 
     model_config = SettingsConfigDict(env_file=".env")
 

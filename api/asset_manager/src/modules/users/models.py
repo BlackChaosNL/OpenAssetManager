@@ -1,6 +1,7 @@
 from datetime import datetime
 import uuid
 from pydantic import EmailStr
+import pytz
 from tortoise.models import Model
 from tortoise import fields
 
@@ -57,10 +58,10 @@ class User(Model, CMDMixin):
             return False
         self.set_password(new_password)
 
-    def delete(self) -> None:
+    async def delete(self) -> None:
         self.disabled = True
-        self.disabled_at = datetime.now(tz=settings.DEFAULT_TIMEZONE)
-        self.save()
+        self.disabled_at = datetime.now(tz=pytz.UTC)
+        await self.save()
 
 
 
@@ -102,7 +103,7 @@ class Membership(Model, CMDMixin):
     acl: ACL = fields.ForeignKeyField("models.ACL")
     disabled: bool = fields.BooleanField(default=False)
 
-    def delete(self) -> None:
+    async def delete(self) -> None:
         self.disabled = True
-        self.disabled_at = datetime.now(tz=settings.DEFAULT_TIMEZONE)
-        self.save()
+        self.disabled_at = datetime.now(tz=pytz.UTC)
+        await self.save()
