@@ -12,7 +12,7 @@ class TestAuthentication(object):
         self, client: AsyncClient
     ):
         response = await client.post(
-            "http://localhost/api/v1/auth/",
+            "https://localhost/api/v1/auth/",
             data={
                 "username": "non-existing@localhost.com",
                 "password": "password",
@@ -28,7 +28,7 @@ class TestAuthentication(object):
     ):
         _, _, _, _ = use_admin_account
         response = await client.post(
-            "http://localhost/api/v1/auth/",
+            "https://localhost/api/v1/auth/",
             data={
                 "username": "admin@localhost.com",
                 "password": "password",
@@ -44,7 +44,7 @@ class TestAuthentication(object):
     ):
         _, _, admin, _ = use_admin_account
         response = await client.post(
-            "http://localhost/api/v1/auth/",
+            "https://localhost/api/v1/auth/",
             data={
                 "username": "admin@localhost.com",
                 "password": "adminpassword",
@@ -68,14 +68,14 @@ class TestAuthentication(object):
 
     @pytest.mark.asyncio
     async def test_logging_out_destroys_tokens(
-        self, client: AsyncClient, use_admin_account
+        self, client: AsyncClient, use_user_account
     ):
-        _, _, admin, _ = use_admin_account
+        _, _, user, _ = use_user_account
         response = await client.post(
-            "http://localhost/api/v1/auth/",
+            "https://localhost/api/v1/auth/",
             data={
-                "username": "admin@localhost.com",
-                "password": "adminpassword",
+                "username": "user@localhost.com",
+                "password": "userpassword",
                 "grant_type": "password",
             },
         )
@@ -83,7 +83,7 @@ class TestAuthentication(object):
         assert response.json() == {
             "jwt": {
                 "created_at": ANY,
-                "user_id": str(admin.id),
+                "user_id": str(user.id),
                 "id": ANY,
                 "modified_at": ANY,
                 "disabled_at": None,
@@ -95,12 +95,23 @@ class TestAuthentication(object):
         }
 
         access_token = response.json()["jwt"]["access_token"]
+        refresh_token = response.json()["jwt"]["refresh_token"]
 
         logout = await client.get(
-            "http://localhost/api/v1/auth/logout",
+            "https://localhost/api/v1/auth/logout",
             headers={"Authorization": f"Bearer {access_token}"},
         )
         assert logout.status_code == 204
+
+        refresh_request = await client.post(
+            "https://localhost/api/v1/auth/refresh",
+            headers={"Authorization": f"Bearer {refresh_token}"},
+        )
+
+        assert refresh_request.status_code == 401
+        assert refresh_request.json() == {
+            "detail": "Refresh token not found or something went wrong."
+        }
 
     @pytest.mark.asyncio
     async def test_create_new_tokens_upon_refresh(
@@ -108,7 +119,7 @@ class TestAuthentication(object):
     ):
         _, _, admin, _ = use_admin_account
         token = await client.post(
-            "http://localhost/api/v1/auth/",
+            "https://localhost/api/v1/auth/",
             data={
                 "username": "admin@localhost.com",
                 "password": "adminpassword",
@@ -133,7 +144,7 @@ class TestAuthentication(object):
         refresh_token = token.json()["jwt"]["refresh_token"]
 
         response2 = await client.post(
-            "http://localhost/api/v1/auth/refresh",
+            "https://localhost/api/v1/auth/refresh",
             headers={"Authorization": f"Bearer {refresh_token}"},
         )
 

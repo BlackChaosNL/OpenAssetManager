@@ -3,6 +3,7 @@ from typing import Annotated
 import uuid
 from fastapi.security import OAuth2PasswordRequestForm
 from fastapi.routing import APIRouter
+from pydantic import EmailStr
 import pytz
 from modules.users.utils import get_current_active_user
 from modules.auth.utils import create_jwt_tokens, get_tokens_from_logged_in_user
@@ -15,7 +16,7 @@ from config import settings
 
 router = APIRouter(prefix="/api/v1/auth", tags=["auth"])
 
-email_error: str = "E-Mail Address or password is incorrect"
+account_error: str = "E-Mail Address or password is incorrect"
 token_error: str = "Refresh token not found or something went wrong."
 
 crypt = settings.CRYPT
@@ -23,16 +24,21 @@ crypt = settings.CRYPT
 
 @router.post("/")
 async def login(form: Annotated[OAuth2PasswordRequestForm, Depends()]):
+    """
+    Login
+
+    Logs the user into our API, creates tokens and passes them back to User.
+    """
     user: User | None = await User.filter(email=form.username).first()
 
     if user is None:
-        raise HTTPException(status_code=401, detail=email_error)
+        raise HTTPException(status_code=401, detail=account_error)
 
     if user.check_against_password(form.password) is False:
-        raise HTTPException(status_code=401, detail=email_error)
+        raise HTTPException(status_code=401, detail=account_error)
 
     if user.disabled is True:
-        raise HTTPException(status_code=401, detail=email_error)
+        raise HTTPException(status_code=401, detail=account_error)
 
     tokens = await create_jwt_tokens(user)
 
@@ -41,6 +47,11 @@ async def login(form: Annotated[OAuth2PasswordRequestForm, Depends()]):
 
 @router.get("/logout", status_code=204)
 async def logout(user: Annotated[User, Depends(get_current_active_user)]):
+    """
+    Logout
+
+    Logout destroys all tokens for User that are currently active. 
+    """
     get_all_tokens = await Token.filter(Q(user__id=user.id))
     if get_all_tokens is None:
         raise HTTPException(
@@ -55,6 +66,12 @@ async def logout(user: Annotated[User, Depends(get_current_active_user)]):
 async def refresh_login(
     refresh_token: Annotated[Token | None, Depends(get_tokens_from_logged_in_user)]
 ):
+    """
+    Refresh
+
+    After ging this route a token that is active and not disabled, we disable ALL other tokens and pass along new tokens.
+    Tokens are alive for about 10 minutes. Refresh tokens are alive for 20 minutes. 
+    """
     if refresh_token is None:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
@@ -78,8 +95,12 @@ async def refresh_login(
             detail=token_error,
         )
 
-    await refresh_token.delete()
-
+    get_all_tokens = await Token.filter(Q(user__id=refresh_token.user_id))
+    
+    for token in get_all_tokens:
+        if token.id != refresh_token.id:
+            await token.delete()
+    
     tokens = await create_jwt_tokens(
         user=await User.filter(Q(id=refresh_token.user_id)).first()
     )
@@ -88,5 +109,9 @@ async def refresh_login(
 
 
 @router.post("/register")
-async def register():
+async def register(email: EmailStr, name: str, surname: str, password: str, validate_password: str):
+    pass
+
+@router.post("/2fa")
+async def twofa():
     pass

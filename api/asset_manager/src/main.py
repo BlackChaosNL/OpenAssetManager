@@ -11,6 +11,8 @@ from modules.auth.router import router as auth_router
 from modules.users.router import router as users_router
 from modules.organizations.router import router as organizations_router
 
+from fastapi.middleware.httpsredirect import HTTPSRedirectMiddleware
+from fastapi.middleware.trustedhost import TrustedHostMiddleware
 
 @asynccontextmanager
 async def lifespan(_: FastAPI):
@@ -26,6 +28,9 @@ app = FastAPI(
     summary=settings.PROJECT_SUMMARY,
     default_response_class=msgspec_jsonresponse,
 )
+
+app.add_middleware(HTTPSRedirectMiddleware)
+app.add_middleware(TrustedHostMiddleware, allowed_hosts=[settings.PROJECT_PUBLIC_URL,])
 
 # Set all CORS enabled origins
 if settings.BACKEND_CORS_ORIGINS:

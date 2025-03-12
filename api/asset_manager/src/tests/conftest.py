@@ -40,7 +40,7 @@ def event_loop():
 
 
 @asynccontextmanager
-async def client_manager(app, base_url="http://localhost", **kw) -> ClientManagerType:
+async def client_manager(app, base_url="https://localhost", **kw) -> ClientManagerType:
     app.state.testing = True
     async with LifespanManager(app):
         transport = httpx.ASGITransport(app=app)

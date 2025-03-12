@@ -15,8 +15,8 @@ class Token(Model, CMDMixin):
     Creates the access tokens for the User
     """
 
-    id: uuid = fields.UUIDField(primary_key=True)
-    user: uuid = fields.ForeignKeyField("models.User")
+    id: uuid.UUID = fields.UUIDField(primary_key=True)
+    user: uuid.UUID = fields.ForeignKeyField("models.User")
     token_type: str = fields.CharField(max_length=128, default="Bearer")
     access_token: str = fields.TextField(null=True)
     refresh_token: str = fields.TextField(null=True)

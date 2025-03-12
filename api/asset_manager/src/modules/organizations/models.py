@@ -8,7 +8,6 @@ from tortoise.models import Model
 from tortoise import fields
 
 from mixins.CMDMixin import CMDMixin
-from config import settings
 
 class EnumField(fields.CharField):
     """
@@ -43,7 +42,6 @@ class OrganizationType(Enum):
     2. What size is it?
 
     All choices should be representative of the org.
-    There are no seat costs.
     """
 
     HOME: str = "home"  # Home use (Any size)
@@ -62,10 +60,10 @@ class Organization(Model, CMDMixin):
     and makes sure that we can add users.
     """
 
-    id: uuid = fields.UUIDField(primary_key=True)
+    id: uuid.UUID = fields.UUIDField(primary_key=True)
     name: str = fields.CharField(max_length=128)
     type: str = EnumField(OrganizationType)
-    users: uuid = fields.ManyToManyField(
+    users: uuid.UUID = fields.ManyToManyField(
         "models.User",
         related_name="members",
         through="Membership",

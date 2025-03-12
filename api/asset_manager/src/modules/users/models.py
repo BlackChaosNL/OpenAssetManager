@@ -18,7 +18,7 @@ class User(Model, CMDMixin):
     This holds all of our users
     """
 
-    id: uuid = fields.UUIDField(primary_key=True)
+    id: uuid.UUID = fields.UUIDField(primary_key=True)
     email: EmailStr = fields.CharField(max_length=128)
     username: str = fields.TextField(max_length=128)
     name: str = fields.TextField(max_length=128)
@@ -72,7 +72,7 @@ class ACL(Model):
     Access control lists, every invited user gets an ACL and this decides whether you grant / deny access to certain parts of our system.
     """
 
-    id: uuid = fields.UUIDField(primary_key=True)
+    id: uuid.UUID = fields.UUIDField(primary_key=True)
     READ: bool = fields.BooleanField(default=False)
     WRITE: bool = fields.BooleanField(default=False)
     REPORT: bool = fields.BooleanField(default=False)
@@ -97,7 +97,7 @@ class Membership(Model, CMDMixin):
     Creates a connection between an user and a company together with an ACL.
     """
 
-    id: uuid = fields.UUIDField(primary_key=True)
+    id: uuid.UUID = fields.UUIDField(primary_key=True)
     organization: Organization = fields.ForeignKeyField("models.Organization")
     user: User = fields.ForeignKeyField("models.User")
     acl: ACL = fields.ForeignKeyField("models.ACL")

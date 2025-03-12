@@ -14,7 +14,22 @@
   abort @external 401
 }
 
-*.{$MAIN_DOMAIN} {
+stoneedge.{$MAIN_DOMAIN} {
+    handle / {
+        reverse_proxy stoneedge:8000
+    }
+}
+
+stoneedge-staging.{$MAIN_DOMAIN} {
+    handle / {
+        import protect
+        abort
+
+        reverse_proxy stoneedge-staging:8000
+    }
+}
+
+{$MAIN_DOMAIN} {
     encode zstd gzip
 
     handle /ping {
@@ -24,16 +39,7 @@
     }
 
     handle / {
-        abort
-    }
-
-    handle @stoneedge {
-        reverse_proxy stoneedge:8000
-    }
-
-    handle @stoneedge-staging {
-        import protect
-        abort
+        abort 404
     }
 
     handle {
