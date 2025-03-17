@@ -45,6 +45,7 @@ class OrganizationType(Enum):
     """
 
     HOME: str = "home"  # Home use (Any size)
+    NON_PROFIT: str = "non_profit"
     SMALL_ORGANIZATION: str = "s_org"  # 1-100
     MEDIUM_ORGANIZATION: str = "m_org"  # 100 - 500
     LARGE_ORGANIZATION: str = "l_org"  # 500 - 1000
@@ -77,9 +78,12 @@ class Organization(Model, CMDMixin):
     def __str__(self) -> str:
         return f"{self.id} - {self.name}"
 
-    async def delete(self) -> None:
-        self.disabled = True
-        self.disabled_at = datetime.now(tz=pytz.UTC)
-        await self.save()
+    async def delete(self, force: bool = False) -> None:
+        if force:
+            await Model.delete(self)
+        else:
+            self.disabled = True
+            self.disabled_at = datetime.now(tz=pytz.UTC)
+            await self.save()
 
 

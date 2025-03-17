@@ -11,6 +11,7 @@ from config import settings
 
 crypt = settings.CRYPT
 
+
 class User(Model, CMDMixin):
     """
     User
@@ -39,30 +40,29 @@ class User(Model, CMDMixin):
     def __str__(self) -> str:
         return f"{self.id} - {self.name} {self.surname}"
 
-    def set_password(self, password: str) -> None:
-        self.password = crypt.hash(
-            password
-        )
-        self.save()  # Make sure to save the model in DB
+    async def set_password(self, password: str) -> None:
+        self.password = crypt.hash(password)
+        await self.save()  # Make sure to save the model in DB
 
     def check_against_password(self, password: str) -> bool:
-        return crypt.verify(
-            password,
-            self.password
-        )
-    
-    def update_password(self, old_password, new_password: str, verify_new_password: str) -> bool:
+        return crypt.verify(password, self.password)
+
+    async def update_password(
+        self, old_password, new_password: str, verify_new_password: str
+    ) -> bool:
         if self.check_against_password(old_password) is False:
             return False
         if new_password is not verify_new_password:
             return False
-        self.set_password(new_password)
+        await self.set_password(new_password)
 
-    async def delete(self) -> None:
-        self.disabled = True
-        self.disabled_at = datetime.now(tz=pytz.UTC)
-        await self.save()
-
+    async def delete(self, force: bool = False) -> None:
+        if force:
+            await Model.delete(self)
+        else:
+            self.disabled = True
+            self.disabled_at = datetime.now(tz=pytz.UTC)
+            await self.save()
 
 
 class ACL(Model):
@@ -103,7 +103,10 @@ class Membership(Model, CMDMixin):
     acl: ACL = fields.ForeignKeyField("models.ACL")
     disabled: bool = fields.BooleanField(default=False)
 
-    async def delete(self) -> None:
-        self.disabled = True
-        self.disabled_at = datetime.now(tz=pytz.UTC)
-        await self.save()
+    async def delete(self, force: bool = False) -> None:
+        if force:
+            await Model.delete(self)
+        else:
+            self.disabled = True
+            self.disabled_at = datetime.now(tz=pytz.UTC)
+            await self.save()

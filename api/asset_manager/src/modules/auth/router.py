@@ -3,7 +3,6 @@ from typing import Annotated
 import uuid
 from fastapi.security import OAuth2PasswordRequestForm
 from fastapi.routing import APIRouter
-from pydantic import EmailStr
 import pytz
 from modules.users.utils import get_current_active_user
 from modules.auth.utils import create_jwt_tokens, get_tokens_from_logged_in_user
@@ -12,17 +11,20 @@ from modules.users.models import User
 from fastapi import Depends, HTTPException, status
 from tortoise.expressions import Q
 from config import settings
-
+from modules.users.schemas import user_model
+from modules.auth.schemas import register_model
 
 router = APIRouter(prefix="/api/v1/auth", tags=["auth"])
 
 account_error: str = "E-Mail Address or password is incorrect"
 token_error: str = "Refresh token not found or something went wrong."
+user_exists: str = "Account failed to create, please contact support."
+password_failed: str = "Password validation failed, please try again."
 
 crypt = settings.CRYPT
 
 
-@router.post("/")
+@router.post("/login")
 async def login(form: Annotated[OAuth2PasswordRequestForm, Depends()]):
     """
     Login
@@ -50,7 +52,7 @@ async def logout(user: Annotated[User, Depends(get_current_active_user)]):
     """
     Logout
 
-    Logout destroys all tokens for User that are currently active. 
+    Logout destroys all tokens for User that are currently active.
     """
     get_all_tokens = await Token.filter(Q(user__id=user.id))
     if get_all_tokens is None:
@@ -64,13 +66,13 @@ async def logout(user: Annotated[User, Depends(get_current_active_user)]):
 
 @router.post("/refresh")
 async def refresh_login(
-    refresh_token: Annotated[Token | None, Depends(get_tokens_from_logged_in_user)]
+    refresh_token: Annotated[Token | None, Depends(get_tokens_from_logged_in_user)],
 ):
     """
     Refresh
 
     After ging this route a token that is active and not disabled, we disable ALL other tokens and pass along new tokens.
-    Tokens are alive for about 10 minutes. Refresh tokens are alive for 20 minutes. 
+    Tokens are alive for about 10 minutes. Refresh tokens are alive for 20 minutes.
     """
     if refresh_token is None:
         raise HTTPException(
@@ -96,11 +98,11 @@ async def refresh_login(
         )
 
     get_all_tokens = await Token.filter(Q(user__id=refresh_token.user_id))
-    
+
     for token in get_all_tokens:
         if token.id != refresh_token.id:
             await token.delete()
-    
+
     tokens = await create_jwt_tokens(
         user=await User.filter(Q(id=refresh_token.user_id)).first()
     )
@@ -108,10 +110,32 @@ async def refresh_login(
     return {"jwt": tokens}
 
 
-@router.post("/register")
-async def register(email: EmailStr, name: str, surname: str, password: str, validate_password: str):
-    pass
+@router.post("/register", status_code=201, response_model=user_model)
+async def register(user: register_model):
+    # Prevent existing users from reapplying for our system.
+    existing_user: User | None = await User.filter(
+        Q(email=user.email)
+        & Q(username=user.username)
+        & Q(name=user.name)
+        & Q(surname=user.surname)
+    ).get_or_none()
 
-@router.post("/2fa")
-async def twofa():
-    pass
+    if existing_user is not None:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail=user_exists,
+        )
+
+    if user.password != user.validate_password:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail=password_failed,
+        )
+
+    return await User.create(
+        email=user.email,
+        username=user.username,
+        name=user.name,
+        surname=user.surname,
+        password=crypt.hash(user.password),
+    )
