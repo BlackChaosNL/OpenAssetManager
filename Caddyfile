@@ -1,0 +1,48 @@
+{
+    admin off
+    email {$EMAIL_ADDRESS}
+    acme_ca https://acme-staging-v02.api.letsencrypt.org/directory
+   	grace_period 30s
+    shutdown_delay 60s
+}
+
+
+(protect) {
+  @external {
+    not remote_ip private_ranges
+  }
+  abort @external 401
+}
+
+stoneedge.{$MAIN_DOMAIN} {
+    handle / {
+        reverse_proxy stoneedge:8000
+    }
+}
+
+stoneedge-staging.{$MAIN_DOMAIN} {
+    handle / {
+        import protect
+        abort
+
+        reverse_proxy stoneedge-staging:8000
+    }
+}
+
+{$MAIN_DOMAIN} {
+    encode zstd gzip
+
+    handle /ping {
+        @goingDown vars {http.shutting_down} true
+		respond @goingDown "Shutdown in {http.time_until_shutdown}" 503
+        respond "pong" 200
+    }
+
+    handle / {
+        abort 404
+    }
+
+    handle {
+		abort 404
+	}
+}

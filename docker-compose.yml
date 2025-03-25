@@ -1,8 +1,12 @@
-version: "3.7"
+volumes:
+  caddy_data:
+  caddy_config:
+  postgres:
 
 services:
   caddy:
-    image: caddy:<version>
+    container_name: caddy
+    image: docker.io/caddy/caddy:2.9-alpine
     restart: unless-stopped
     ports:
       - "80:80"
@@ -12,9 +16,15 @@ services:
       - ./Caddyfile:/etc/caddy/Caddyfile
       - caddy_data:/data
       - caddy_config:/config
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost/ping"]
+      interval: 5m
+      timeout: 5s
+      retries: 3
+      start_period: 15s
 
-  fastapi:
-    container_name: "fastapi"
+  stoneedge:
+    container_name: "stoneedge"
     restart: unless-stopped
     build:
       context: ./api/asset_manager
@@ -22,19 +32,21 @@ services:
     ports:
       - 8000:8000
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      test: ["CMD", "curl", "-f", "http://localhost:8000/ping"]
       interval: 5m
       timeout: 5s
       retries: 3
       start_period: 15s
-    links:
-      - "postgres"
 
   postgres:
-    container_name: "postgres"
-    image: postgres
+    container_name: postgres_container
+    image: docker.io/postgres:16-alpine
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-user}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-passwd}
+      PGDATA: /data/postgres
+    volumes:
+       - postgres:/data/postgres
+    ports:
+      - "5432:5432"
     restart: unless-stopped
-
-volumes:
-  caddy_data:
-  caddy_config:

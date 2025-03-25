@@ -1,16 +1,30 @@
 from typing_extensions import Any
 from tortoise import Tortoise
-import os
+from config import settings
+from aerich import Command
 
-db_url = os.getenv('PSQL_CONNECT_STR')
-modules: dict[str, Any] = {'models': [
-    '.models',
-    '.modules.auth.models',
-    '.modules.assets.models',
-]}
+modules: dict[str, Any] = {
+    "models": [
+        "modules.assets.models",
+        "modules.auth.models",
+        "modules.users.models",
+        "modules.organizations.models",
+    ]
+}
 
 TORTOISE_ORM = {
-    "connections": {"default": db_url},
+    "connections": {
+        "default": {
+            "engine": "tortoise.backends.asyncpg",
+            "credentials": {
+                "host": settings.PSQL_HOSTNAME,
+                "database": settings.PSQL_DB_NAME,
+                "user": settings.PSQL_USERNAME,
+                "password": settings.PSQL_PASSWORD,
+                "port": settings.PSQL_PORT,
+            },
+        }
+    },
     "apps": {
         "models": {
             "models": modules.get("models", []) + ["aerich.models"],
@@ -19,14 +33,12 @@ TORTOISE_ORM = {
     },
 }
 
-async def init_db():
-    await Tortoise.init(
-        db_url=db_url,
-        modules=modules
-    )
 
 async def migrate_db():
-    await init_db()
+    aerich = Command(tortoise_config=TORTOISE_ORM)
+    await aerich.init()
+    await aerich.upgrade(run_in_transaction=True)
+    await Tortoise.init(config=TORTOISE_ORM)
 
-    # Generate the schema
-    await Tortoise.generate_schemas(safe=True)
+async def end_connections_to_db():
+    await Tortoise.close_connections()
