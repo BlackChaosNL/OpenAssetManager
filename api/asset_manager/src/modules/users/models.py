@@ -1,4 +1,5 @@
 from datetime import datetime
+from typing import List
 import uuid
 from pydantic import EmailStr
 import pytz
@@ -25,17 +26,16 @@ class User(Model, CMDMixin):
     name: str = fields.TextField(max_length=128)
     surname: str = fields.TextField(max_length=128)
     password: str = fields.CharField(max_length=128, null=True)
-    organizations: uuid = fields.ManyToManyField(
+    organizations: List[Organization] = fields.ManyToManyField(
         "models.Organization",
         related_name="members",
-        through="Membership",
+        through="membership",
         forward_key="organization_id",
         backward_key="user_id",
         null=True,
         on_delete=fields.NO_ACTION,
     )
     disabled: bool = fields.BooleanField(default=False)
-    # tokens = fields.ForeignKeyField("models.Token")
 
     def __str__(self) -> str:
         return f"{self.id} - {self.name} {self.surname}"
@@ -98,9 +98,9 @@ class Membership(Model, CMDMixin):
     """
 
     id: uuid.UUID = fields.UUIDField(primary_key=True)
-    organization: Organization = fields.ForeignKeyField("models.Organization")
-    user: User = fields.ForeignKeyField("models.User")
-    acl: ACL = fields.ForeignKeyField("models.ACL")
+    organization: Organization | None = fields.ForeignKeyField("models.Organization")
+    user: User | None = fields.ForeignKeyField("models.User")
+    acl: ACL | None = fields.ForeignKeyField("models.ACL")
     disabled: bool = fields.BooleanField(default=False)
 
     async def delete(self, force: bool = False) -> None:

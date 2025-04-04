@@ -9,6 +9,7 @@ from tortoise import fields
 
 from mixins.CMDMixin import CMDMixin
 
+
 class EnumField(fields.CharField):
     """
     Serializes Enums to and from a str representation in the DB.
@@ -52,7 +53,6 @@ class OrganizationType(Enum):
     EXTRA_LARGE_ORGANIZATION: str = "xl_org"  # 1000 - 5000+
 
 
-
 class Organization(Model, CMDMixin):
     """
     Organization
@@ -64,10 +64,15 @@ class Organization(Model, CMDMixin):
     id: uuid.UUID = fields.UUIDField(primary_key=True)
     name: str = fields.CharField(max_length=128)
     type: str = EnumField(OrganizationType)
+    street_name: str | None = fields.TextField(null=True)
+    zip_code: str | None = fields.CharField(max_length=128, null=True)
+    state: str | None = fields.CharField(max_length=128, null=True)
+    city: str | None = fields.CharField(max_length=128, null=True)
+    country: str | None = fields.CharField(max_length=128, null=True)
     users: uuid.UUID = fields.ManyToManyField(
         "models.User",
         related_name="members",
-        through="Membership",
+        through="membership",
         forward_key="user_id",
         backward_key="organization_id",
         null=True,
@@ -85,5 +90,3 @@ class Organization(Model, CMDMixin):
             self.disabled = True
             self.disabled_at = datetime.now(tz=pytz.UTC)
             await self.save()
-
-

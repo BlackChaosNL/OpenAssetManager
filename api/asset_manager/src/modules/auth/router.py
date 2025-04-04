@@ -1,6 +1,6 @@
 from datetime import datetime
 from typing import Annotated
-import uuid
+from fastapi.responses import JSONResponse
 from fastapi.security import OAuth2PasswordRequestForm
 from fastapi.routing import APIRouter
 import pytz
@@ -25,7 +25,7 @@ crypt = settings.CRYPT
 
 
 @router.post("/login")
-async def login(form: Annotated[OAuth2PasswordRequestForm, Depends()]):
+async def login(form: Annotated[OAuth2PasswordRequestForm, Depends()]) -> JSONResponse:
     """
     Login
 
@@ -48,7 +48,7 @@ async def login(form: Annotated[OAuth2PasswordRequestForm, Depends()]):
 
 
 @router.get("/logout", status_code=204)
-async def logout(user: Annotated[User, Depends(get_current_active_user)]):
+async def logout(user: Annotated[User, Depends(get_current_active_user)]) -> None:
     """
     Logout
 
@@ -67,7 +67,7 @@ async def logout(user: Annotated[User, Depends(get_current_active_user)]):
 @router.post("/refresh")
 async def refresh_login(
     refresh_token: Annotated[Token | None, Depends(get_tokens_from_logged_in_user)],
-):
+) -> JSONResponse:
     """
     Refresh
 
@@ -111,7 +111,7 @@ async def refresh_login(
 
 
 @router.post("/register", status_code=201, response_model=user_model)
-async def register(user: register_model):
+async def register(user: register_model) -> User:
     # Prevent existing users from reapplying for our system.
     existing_user: User | None = await User.filter(
         Q(email=user.email)
