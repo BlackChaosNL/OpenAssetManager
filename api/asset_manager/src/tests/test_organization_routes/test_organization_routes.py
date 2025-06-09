@@ -2,20 +2,21 @@ import pytest  # type: ignore
 from httpx import AsyncClient
 from config import settings
 from unittest.mock import ANY
+from tests.base_test import Test
 
 crypt = settings.CRYPT
 
 
-class TestOrganizationRoute(object):
+class TestOrganizationRoute(Test):
     @pytest.mark.asyncio
     async def test_get_organizations_from_api(
-        self, client: AsyncClient, get_admin_login_token
+        self, client: AsyncClient, create_user_with_org
     ):
-        access_token, _ = get_admin_login_token
+        _,_,_,tokens = create_user_with_org
 
         organizations = await client.get(
             "https://localhost/api/v1/organizations/",
-            headers={"Authorization": f"Bearer {access_token}"},
+            headers={"Authorization": f"Bearer {tokens.access_token}"},
         )
 
         assert organizations.status_code == 200
@@ -38,9 +39,9 @@ class TestOrganizationRoute(object):
 
     @pytest.mark.asyncio
     async def test_create_organization(
-        self, client: AsyncClient, get_user_login_token
+        self, client: AsyncClient, create_user_with_org
     ):
-        access_token, _ = get_user_login_token
+        _,_,_,tokens = create_user_with_org
 
         organizations = await client.post(
             "https://localhost/api/v1/organizations/",
@@ -53,7 +54,7 @@ class TestOrganizationRoute(object):
                 "city": "Helsinki",
                 "country": "Finland",
             },
-            headers={"Authorization": f"Bearer {access_token}"},
+            headers={"Authorization": f"Bearer {tokens.access_token}"},
         )
 
         assert organizations.status_code == 200
@@ -74,9 +75,9 @@ class TestOrganizationRoute(object):
 
     @pytest.mark.asyncio
     async def test_delete_organization(
-        self, client: AsyncClient, get_user_login_token
+        self, client: AsyncClient, create_user_with_org
     ):
-        access_token, _ = get_user_login_token
+        _,_,_,tokens = create_user_with_org
 
         organizations = await client.post(
             "https://localhost/api/v1/organizations/",
@@ -89,7 +90,7 @@ class TestOrganizationRoute(object):
                 "city": "Helsinki",
                 "country": "Finland",
             },
-            headers={"Authorization": f"Bearer {access_token}"},
+            headers={"Authorization": f"Bearer {tokens.access_token}"},
         )
 
         assert organizations.status_code == 200
@@ -112,7 +113,7 @@ class TestOrganizationRoute(object):
 
         deleted_org = await client.delete(
             f"https://localhost/api/v1/organizations/{org_id}",
-            headers={"Authorization": f"Bearer {access_token}"},
+            headers={"Authorization": f"Bearer {tokens.access_token}"},
         )
 
         assert deleted_org.status_code == 204

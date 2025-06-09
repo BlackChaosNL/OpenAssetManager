@@ -2,18 +2,9 @@ import asyncio
 from contextlib import asynccontextmanager
 from typing import AsyncGenerator
 import httpx, pytest
-from config import settings
 from glob import glob
 
 from asgi_lifespan import LifespanManager  # type: ignore
-
-settings.PSQL_DB_NAME = settings.PSQL_TEST_DB_NAME
-
-pytest_plugins = [
-    fixture.replace("/", ".").replace("\\", ".").replace(".py", "")
-    for fixture in glob("tests/fixtures/*.py")
-    if "__" not in fixture
-]
 
 try:
     from main import app
@@ -27,12 +18,12 @@ except ImportError:
 ClientManagerType = AsyncGenerator[httpx.AsyncClient, None]
 
 
-@pytest.fixture(scope="session")
+@pytest.fixture
 def anyio_backend():
     return "asyncio"
 
 
-@pytest.fixture(scope="session")
+@pytest.fixture
 def event_loop():
     loop = asyncio.get_event_loop()
     yield loop

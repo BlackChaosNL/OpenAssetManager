@@ -1,15 +1,14 @@
 from modules.users.models import User
-import pytest  # type: ignore
 from httpx import AsyncClient
 from config import settings
 from unittest.mock import ANY
 from tortoise.expressions import Q
+from tests.base_test import Test
 
 crypt = settings.CRYPT
 
 
-class TestAuthentication(object):
-    @pytest.mark.asyncio
+class TestAuthentication(Test):
     async def test_authentication_with_non_existing_user_and_password(
         self, client: AsyncClient
     ):
@@ -24,11 +23,10 @@ class TestAuthentication(object):
         assert response.status_code == 401
         assert response.json() == {"detail": "E-Mail Address or password is incorrect"}
 
-    @pytest.mark.asyncio
     async def test_authentication_with_existing_user_and_wrong_password(
-        self, client: AsyncClient, use_admin_account
+        self, client: AsyncClient, create_user_with_org
     ):
-        _, _, _, _ = use_admin_account
+        _, _, _, _ = create_user_with_org(email="admin@localhost.com")
         response = await client.post(
             "https://localhost/api/v1/auth/login",
             data={
@@ -40,11 +38,10 @@ class TestAuthentication(object):
         assert response.status_code == 401
         assert response.json() == {"detail": "E-Mail Address or password is incorrect"}
 
-    @pytest.mark.asyncio
     async def test_authentication_with_existing_user_and_password(
-        self, client: AsyncClient, use_admin_account
+        self, client: AsyncClient, create_user_with_org
     ):
-        _, _, admin, _ = use_admin_account
+        user, _, _, _ = create_user_with_org(email="admin@localhost.com", password="adminpassword")
         response = await client.post(
             "https://localhost/api/v1/auth/login",
             data={
@@ -57,7 +54,7 @@ class TestAuthentication(object):
         assert response.json() == {
             "jwt": {
                 "created_at": ANY,
-                "user_id": str(admin.id),
+                "user_id": str(user.id),
                 "id": ANY,
                 "modified_at": ANY,
                 "disabled_at": None,
@@ -68,11 +65,10 @@ class TestAuthentication(object):
             }
         }
 
-    @pytest.mark.asyncio
     async def test_logging_out_destroys_tokens(
-        self, client: AsyncClient, use_user_account
+        self, client: AsyncClient, create_user_with_org
     ):
-        _, _, user, _ = use_user_account
+        user, _, _, _ = create_user_with_org(email="user@localhost.com", password="userpassword")
         response = await client.post(
             "https://localhost/api/v1/auth/login",
             data={
@@ -115,11 +111,10 @@ class TestAuthentication(object):
             "detail": "Refresh token not found or something went wrong."
         }
 
-    @pytest.mark.asyncio
     async def test_create_new_tokens_upon_refresh(
-        self, client: AsyncClient, use_admin_account
+        self, client: AsyncClient, create_user_with_org
     ):
-        _, _, admin, _ = use_admin_account
+        user, _, _, _ = create_user_with_org(email="admin@localhost.com", password="adminpassword")
         token = await client.post(
             "https://localhost/api/v1/auth/login",
             data={
@@ -132,7 +127,7 @@ class TestAuthentication(object):
         assert token.json() == {
             "jwt": {
                 "created_at": ANY,
-                "user_id": str(admin.id),
+                "user_id": str(user.id),
                 "id": ANY,
                 "modified_at": ANY,
                 "disabled_at": None,
@@ -154,7 +149,7 @@ class TestAuthentication(object):
         assert response2.json() == {
             "jwt": {
                 "created_at": ANY,
-                "user_id": str(admin.id),
+                "user_id": str(user.id),
                 "id": ANY,
                 "modified_at": ANY,
                 "disabled_at": None,
@@ -165,7 +160,6 @@ class TestAuthentication(object):
             }
         }
 
-    @pytest.mark.asyncio
     async def test_setup_new_account(self, client: AsyncClient):
         # Ensure account is never available. Prevents account already being available.
         check_if_account_exists: User | None = await User.filter(

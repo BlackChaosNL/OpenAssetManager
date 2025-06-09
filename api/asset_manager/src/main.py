@@ -6,7 +6,6 @@ from contextlib import asynccontextmanager
 from fastapi.middleware.cors import CORSMiddleware
 
 from router import router as root_router
-from modules.assets.router import router as asset_router
 from modules.auth.router import router as auth_router
 from modules.users.router import router as users_router
 from modules.organizations.router import router as organizations_router
@@ -29,8 +28,10 @@ app = FastAPI(
     default_response_class=msgspec_jsonresponse,
 )
 
-app.add_middleware(HTTPSRedirectMiddleware)
 app.add_middleware(TrustedHostMiddleware, allowed_hosts=[settings.PROJECT_PUBLIC_URL,])
+
+if settings.USE_HTTPS_ONLY:
+    app.add_middleware(HTTPSRedirectMiddleware)
 
 # Set all CORS enabled origins
 if settings.BACKEND_CORS_ORIGINS:
@@ -46,4 +47,3 @@ app.include_router(root_router)
 app.include_router(auth_router)
 app.include_router(users_router)
 app.include_router(organizations_router)
-app.include_router(asset_router)
