@@ -26,7 +26,7 @@ class TestAuthentication(Test):
     async def test_authentication_with_existing_user_and_wrong_password(
         self, client: AsyncClient, create_user_with_org
     ):
-        _, _, _, _ = create_user_with_org(email="admin@localhost.com")
+        _, _, _, _ = await create_user_with_org(email="admin@localhost.com")
         response = await client.post(
             "https://localhost/api/v1/auth/login",
             data={
@@ -41,7 +41,7 @@ class TestAuthentication(Test):
     async def test_authentication_with_existing_user_and_password(
         self, client: AsyncClient, create_user_with_org
     ):
-        user, _, _, _ = create_user_with_org(email="admin@localhost.com", password="adminpassword")
+        user, _, _, _ = await create_user_with_org(email="admin@localhost.com", password="adminpassword")
         response = await client.post(
             "https://localhost/api/v1/auth/login",
             data={
@@ -68,7 +68,7 @@ class TestAuthentication(Test):
     async def test_logging_out_destroys_tokens(
         self, client: AsyncClient, create_user_with_org
     ):
-        user, _, _, _ = create_user_with_org(email="user@localhost.com", password="userpassword")
+        user, _, _, _ = await create_user_with_org(email="user@localhost.com", password="userpassword")
         response = await client.post(
             "https://localhost/api/v1/auth/login",
             data={
@@ -114,7 +114,7 @@ class TestAuthentication(Test):
     async def test_create_new_tokens_upon_refresh(
         self, client: AsyncClient, create_user_with_org
     ):
-        user, _, _, _ = create_user_with_org(email="admin@localhost.com", password="adminpassword")
+        user, _, _, _ = await create_user_with_org(email="admin@localhost.com", password="adminpassword")
         token = await client.post(
             "https://localhost/api/v1/auth/login",
             data={
@@ -123,6 +123,8 @@ class TestAuthentication(Test):
                 "grant_type": "password",
             },
         )
+
+        assert token.__dict__ == True
         assert token.status_code == 200
         assert token.json() == {
             "jwt": {
