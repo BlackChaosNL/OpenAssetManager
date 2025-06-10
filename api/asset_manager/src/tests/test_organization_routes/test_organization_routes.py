@@ -1,4 +1,4 @@
-import pytest  # type: ignore
+import pytest
 from httpx import AsyncClient
 from config import settings
 from unittest.mock import ANY
@@ -12,7 +12,7 @@ class TestOrganizationRoute(Test):
     async def test_get_organizations_from_api(
         self, client: AsyncClient, create_user_with_org
     ):
-        _,_,_,tokens = create_user_with_org
+        _,_,_,tokens = await create_user_with_org()
 
         organizations = await client.get(
             "https://localhost/api/v1/organizations/",
@@ -27,8 +27,8 @@ class TestOrganizationRoute(Test):
                 "disabled_at": None,
                 "id": ANY,
                 "modified_at": ANY,
-                "name": "Superadmin's Organization",
-                "type": "non_profit",
+                "name": "simple organization",
+                "type": "home",
                 "street_name": None,
                 "zip_code": None,
                 "state": None,
@@ -41,7 +41,7 @@ class TestOrganizationRoute(Test):
     async def test_create_organization(
         self, client: AsyncClient, create_user_with_org
     ):
-        _,_,_,tokens = create_user_with_org
+        _,_,_,tokens = await create_user_with_org()
 
         organizations = await client.post(
             "https://localhost/api/v1/organizations/",
@@ -77,7 +77,7 @@ class TestOrganizationRoute(Test):
     async def test_delete_organization(
         self, client: AsyncClient, create_user_with_org
     ):
-        _,_,_,tokens = create_user_with_org
+        _,_,_,tokens = await create_user_with_org()
 
         organizations = await client.post(
             "https://localhost/api/v1/organizations/",

@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import Annotated
+from typing import Annotated, List
 from fastapi.responses import JSONResponse
 from fastapi.security import OAuth2PasswordRequestForm
 from fastapi.routing import APIRouter
@@ -31,7 +31,12 @@ async def login(form: Annotated[OAuth2PasswordRequestForm, Depends()]) -> JSONRe
 
     Logs the user into our API, creates tokens and passes them back to User.
     """
-    user: User | None = await User.filter(email=form.username).first()
+    user: User | None = await User.filter(
+        Q(email=form.username) & Q(password=form.password)
+    ).first()
+
+    print(await User.all())
+    print(form.username, form.password, user.__dict__ if user else None)
 
     if user is None:
         raise HTTPException(status_code=401, detail=account_error)

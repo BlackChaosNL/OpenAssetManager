@@ -2,9 +2,9 @@ import asyncio
 from contextlib import asynccontextmanager
 from typing import AsyncGenerator
 import httpx, pytest
-from glob import glob
 
 from asgi_lifespan import LifespanManager  # type: ignore
+from tests.fixtures.account import *
 
 try:
     from main import app
