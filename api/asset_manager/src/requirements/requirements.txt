@@ -19,3 +19,4 @@ asyncio>=3.4.3
 pytest-mock>=3.14.1
 pytest-asyncio>=1.0.0
 asgi-lifespan>=2.1.0
+Faker>=37.4.0

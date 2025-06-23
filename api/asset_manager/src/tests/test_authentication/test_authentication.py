@@ -1,3 +1,4 @@
+from tests.base_test import Test
 from modules.users.models import User
 import pytest  # type: ignore
 from httpx import AsyncClient
@@ -8,7 +9,7 @@ from tortoise.expressions import Q
 crypt = settings.CRYPT
 
 
-class TestAuthentication(object):
+class TestAuthentication(Test):
     @pytest.mark.asyncio
     async def test_authentication_with_non_existing_user_and_password(
         self, client: AsyncClient

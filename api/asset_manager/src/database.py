@@ -39,11 +39,12 @@ TORTOISE_ORM = {
 }
 
 
-async def migrate_db():
-    aerich = Command(tortoise_config=TORTOISE_ORM)
+async def migrate_db(tortoise_config=TORTOISE_ORM):
+    aerich = Command(tortoise_config)
     await aerich.init()
     await aerich.upgrade(run_in_transaction=True)
-    await Tortoise.init(config=TORTOISE_ORM)
+    await Tortoise.init(tortoise_config)
+    await Tortoise.generate_schemas(safe=True)
 
 async def end_connections_to_db():
     await Tortoise.close_connections()

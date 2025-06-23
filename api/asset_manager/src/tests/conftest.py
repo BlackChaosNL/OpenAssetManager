@@ -2,9 +2,10 @@ import asyncio
 from contextlib import asynccontextmanager
 from typing import AsyncGenerator
 import httpx, pytest
+from tortoise import Tortoise
+from asgi_lifespan import LifespanManager
 
-from asgi_lifespan import LifespanManager  # type: ignore
-
+from database import migrate_db
 from tests.fixtures.account import *
 
 try:
@@ -31,12 +32,20 @@ def event_loop():
     loop.close()
 
 
+@pytest.fixture
+async def use_database_during_testing():
+    await migrate_db()
+    yield
+    await Tortoise._drop_databases()
+
+
 @asynccontextmanager
 async def client_manager(app, base_url="https://localhost", **kw) -> ClientManagerType:
     app.state.testing = True
     async with LifespanManager(app):
-        transport = httpx.ASGITransport(app=app)
-        async with httpx.AsyncClient(transport=transport, base_url=base_url, **kw) as c:
+        async with httpx.AsyncClient(
+            transport=httpx.ASGITransport(app=app), base_url=base_url, **kw
+        ) as c:
             yield c
 
 
