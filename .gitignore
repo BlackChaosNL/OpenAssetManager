@@ -91,3 +91,6 @@
 /web/**/psd
 /web/**/thumb
 /web/**/sketch
+
+# Prevent uploading DB files
+*.sqlite*
