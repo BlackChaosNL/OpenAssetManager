@@ -5,7 +5,6 @@ from aerich import Command
 
 modules: dict[str, Any] = {
     "models": [
-        "modules.assets.models",
         "modules.auth.models",
         "modules.users.models",
         "modules.organizations.models",
@@ -14,6 +13,12 @@ modules: dict[str, Any] = {
 
 TORTOISE_ORM = {
     "connections": {
+        "testing": {
+            "engine": "tortoise.backends.sqlite",
+            "credentials": {
+                "file_path": "stoneedge.sqlite"
+            }
+        },
         "default": {
             "engine": "tortoise.backends.asyncpg",
             "credentials": {
@@ -28,7 +33,7 @@ TORTOISE_ORM = {
     "apps": {
         "models": {
             "models": modules.get("models", []) + ["aerich.models"],
-            "default_connection": "default",
+            "default_connection": "testing" if settings.IS_TESTING else "default",
         },
     },
 }

@@ -26,9 +26,9 @@ class TestAuthentication(object):
 
     @pytest.mark.asyncio
     async def test_authentication_with_existing_user_and_wrong_password(
-        self, client: AsyncClient, use_admin_account
+        self, client: AsyncClient, create_user_with_org
     ):
-        _, _, _, _ = use_admin_account
+        _, _, _, _ = await create_user_with_org()
         response = await client.post(
             "https://localhost/api/v1/auth/login",
             data={
@@ -42,9 +42,9 @@ class TestAuthentication(object):
 
     @pytest.mark.asyncio
     async def test_authentication_with_existing_user_and_password(
-        self, client: AsyncClient, use_admin_account
+        self, client: AsyncClient, create_user_with_org
     ):
-        _, _, admin, _ = use_admin_account
+        admin, _, _, _ = await create_user_with_org(email="admin@localhost.com", password="adminpassword")
         response = await client.post(
             "https://localhost/api/v1/auth/login",
             data={
@@ -70,9 +70,9 @@ class TestAuthentication(object):
 
     @pytest.mark.asyncio
     async def test_logging_out_destroys_tokens(
-        self, client: AsyncClient, use_user_account
+        self, client: AsyncClient, create_user_with_org
     ):
-        _, _, user, _ = use_user_account
+        user, _, _, _ = await create_user_with_org(email="user@localhost.com", password="userpassword")
         response = await client.post(
             "https://localhost/api/v1/auth/login",
             data={
@@ -117,9 +117,9 @@ class TestAuthentication(object):
 
     @pytest.mark.asyncio
     async def test_create_new_tokens_upon_refresh(
-        self, client: AsyncClient, use_admin_account
+        self, client: AsyncClient, create_user_with_org
     ):
-        _, _, admin, _ = use_admin_account
+        admin, _, _, _ = await create_user_with_org(email="admin@localhost.com", password="adminpassword")
         token = await client.post(
             "https://localhost/api/v1/auth/login",
             data={

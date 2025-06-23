@@ -1,21 +1,21 @@
-aerich>=0.8.0
-fastapi[all]>=0.115.5
-python-dotenv>=0.21.0
-tortoise-orm[asyncpg]>=0.22.1
-uvicorn>=0.31.1
-black>=24.10.0
-joserfc>=1.0.1
+aerich>=0.9.0
+fastapi[all]>=0.115.12
+tortoise-orm[asyncpg]>=0.25.1
+uvicorn>=0.34.3
+black>=25.1.0
+joserfc>=1.1.0
 passlib>=1.7.4
-pytz>=2024.2
-ptpython>=0.25
+pytz>=2025.2
+ptpython>=3.0.30
 msgspec>=0.19.0
-bcrypt>=4.2.1
+bcrypt>=4.3.0
+tomlkit>=0.13.3
 
 # Test Suite
 httpx>=0.28.1
-pytest>=8.3.4
-mock>=5.1.0
+mock>=5.2.0
+pytest>=8.4.0
 asyncio>=3.4.3
-pytest-mock>=3.14.0
-pytest-asyncio>=0.25.3
+pytest-mock>=3.14.1
+pytest-asyncio>=1.0.0
 asgi-lifespan>=2.1.0
