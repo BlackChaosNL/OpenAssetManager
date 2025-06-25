@@ -29,8 +29,14 @@ app = FastAPI(
     default_response_class=msgspec_jsonresponse,
 )
 
-app.add_middleware(HTTPSRedirectMiddleware)
-app.add_middleware(TrustedHostMiddleware, allowed_hosts=[settings.PROJECT_PUBLIC_URL,])
+if settings.USE_HTTPS_ONLY:
+    app.add_middleware(HTTPSRedirectMiddleware)
+app.add_middleware(
+    TrustedHostMiddleware,
+    allowed_hosts=[
+        settings.PROJECT_PUBLIC_URL,
+    ],
+)
 
 # Set all CORS enabled origins
 if settings.BACKEND_CORS_ORIGINS:

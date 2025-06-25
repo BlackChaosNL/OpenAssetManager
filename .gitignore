@@ -92,5 +92,6 @@
 /web/**/thumb
 /web/**/sketch
 
-# Prevent uploading DB files
+# Prevent some sensitive files from being committed
 *.sqlite*
+.env

@@ -1,19 +1,9 @@
-import asyncio
+import asyncio, httpx, pytest
 from contextlib import asynccontextmanager
 from typing import AsyncGenerator
-import httpx, pytest
-from config import settings
-from glob import glob
+from asgi_lifespan import LifespanManager
 
-from asgi_lifespan import LifespanManager  # type: ignore
-
-settings.PSQL_DB_NAME = settings.PSQL_TEST_DB_NAME
-
-pytest_plugins = [
-    fixture.replace("/", ".").replace("\\", ".").replace(".py", "")
-    for fixture in glob("tests/fixtures/*.py")
-    if "__" not in fixture
-]
+from tests.fixtures.account import *
 
 try:
     from main import app
@@ -27,12 +17,12 @@ except ImportError:
 ClientManagerType = AsyncGenerator[httpx.AsyncClient, None]
 
 
-@pytest.fixture(scope="session")
+@pytest.fixture
 def anyio_backend():
     return "asyncio"
 
 
-@pytest.fixture(scope="session")
+@pytest.fixture
 def event_loop():
     loop = asyncio.get_event_loop()
     yield loop
@@ -43,8 +33,9 @@ def event_loop():
 async def client_manager(app, base_url="https://localhost", **kw) -> ClientManagerType:
     app.state.testing = True
     async with LifespanManager(app):
-        transport = httpx.ASGITransport(app=app)
-        async with httpx.AsyncClient(transport=transport, base_url=base_url, **kw) as c:
+        async with httpx.AsyncClient(
+            transport=httpx.ASGITransport(app=app), base_url=base_url, **kw
+        ) as c:
             yield c
 
 

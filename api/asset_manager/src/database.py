@@ -5,14 +5,25 @@ from aerich import Command
 
 modules: dict[str, Any] = {
     "models": [
-        "modules.assets.models",
         "modules.auth.models",
         "modules.users.models",
         "modules.organizations.models",
     ]
 }
 
-TORTOISE_ORM = {
+TEST_TORTOISE_ORM = {
+    "connections": {
+        "default": "sqlite://:memory:"
+    },
+    "apps": {
+        "models": {
+            "models": modules.get("models", []) + ["aerich.models"],
+            "default_connection": "default",
+        },
+    },
+}
+
+PROD_TORTOISE_ORM = {
     "connections": {
         "default": {
             "engine": "tortoise.backends.asyncpg",
@@ -23,7 +34,7 @@ TORTOISE_ORM = {
                 "password": settings.PSQL_PASSWORD,
                 "port": settings.PSQL_PORT,
             },
-        }
+        },
     },
     "apps": {
         "models": {
@@ -34,11 +45,15 @@ TORTOISE_ORM = {
 }
 
 
-async def migrate_db():
-    aerich = Command(tortoise_config=TORTOISE_ORM)
+async def migrate_db(tortoise_config=PROD_TORTOISE_ORM):
+    if settings.IS_TESTING:
+        tortoise_config=TEST_TORTOISE_ORM
+    aerich = Command(tortoise_config)
     await aerich.init()
-    await aerich.upgrade(run_in_transaction=True)
-    await Tortoise.init(config=TORTOISE_ORM)
+    await aerich.upgrade()
+    await Tortoise.init(tortoise_config)
+    await Tortoise.generate_schemas(safe=True)
+
 
 async def end_connections_to_db():
     await Tortoise.close_connections()
