@@ -10,6 +10,7 @@ from modules.assets.router import router as asset_router
 from modules.auth.router import router as auth_router
 from modules.users.router import router as users_router
 from modules.organizations.router import router as organizations_router
+from modules.invitations.router import router as invitations_router
 
 from fastapi.middleware.httpsredirect import HTTPSRedirectMiddleware
 from fastapi.middleware.trustedhost import TrustedHostMiddleware
@@ -53,3 +54,4 @@ app.include_router(auth_router)
 app.include_router(users_router)
 app.include_router(organizations_router)
 app.include_router(asset_router)
+app.include_router(invitations_router)
