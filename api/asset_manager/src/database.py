@@ -23,7 +23,7 @@ TEST_TORTOISE_ORM = {
     },
 }
 
-PROD_TORTOISE_ORM = {
+TORTOISE_ORM = {
     "connections": {
         "default": {
             "engine": "tortoise.backends.asyncpg",
@@ -45,7 +45,7 @@ PROD_TORTOISE_ORM = {
 }
 
 
-async def migrate_db(tortoise_config=PROD_TORTOISE_ORM):
+async def migrate_db(tortoise_config=TORTOISE_ORM):
     if settings.IS_TESTING:
         tortoise_config=TEST_TORTOISE_ORM
     aerich = Command(tortoise_config)

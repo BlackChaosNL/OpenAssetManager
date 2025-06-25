@@ -64,6 +64,11 @@ class Organization(Model, CMDMixin):
     id: uuid.UUID = fields.UUIDField(primary_key=True)
     name: str = fields.CharField(max_length=128)
     type: str = EnumField(OrganizationType)
+    street_name: str | None = fields.TextField(null=True)
+    zip_code: str | None = fields.CharField(max_length=128, null=True)
+    state: str | None = fields.CharField(max_length=128, null=True)
+    city: str | None = fields.CharField(max_length=128, null=True)
+    country: str | None = fields.CharField(max_length=128, null=True)
     users: uuid.UUID = fields.ManyToManyField(
         "models.User",
         related_name="members",
