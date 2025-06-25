@@ -11,14 +11,20 @@ modules: dict[str, Any] = {
     ]
 }
 
-TORTOISE_ORM = {
+TEST_TORTOISE_ORM = {
     "connections": {
-        "testing": {
-            "engine": "tortoise.backends.sqlite",
-            "credentials": {
-                "file_path": "stoneedge.sqlite"
-            }
+        "default": "sqlite://:memory:"
+    },
+    "apps": {
+        "models": {
+            "models": modules.get("models", []) + ["aerich.models"],
+            "default_connection": "default",
         },
+    },
+}
+
+PROD_TORTOISE_ORM = {
+    "connections": {
         "default": {
             "engine": "tortoise.backends.asyncpg",
             "credentials": {
@@ -28,23 +34,26 @@ TORTOISE_ORM = {
                 "password": settings.PSQL_PASSWORD,
                 "port": settings.PSQL_PORT,
             },
-        }
+        },
     },
     "apps": {
         "models": {
             "models": modules.get("models", []) + ["aerich.models"],
-            "default_connection": "testing" if settings.IS_TESTING else "default",
+            "default_connection": "default",
         },
     },
 }
 
 
-async def migrate_db(tortoise_config=TORTOISE_ORM):
+async def migrate_db(tortoise_config=PROD_TORTOISE_ORM):
+    if settings.IS_TESTING:
+        tortoise_config=TEST_TORTOISE_ORM
     aerich = Command(tortoise_config)
     await aerich.init()
-    await aerich.upgrade(run_in_transaction=True)
+    await aerich.upgrade()
     await Tortoise.init(tortoise_config)
     await Tortoise.generate_schemas(safe=True)
+
 
 async def end_connections_to_db():
     await Tortoise.close_connections()

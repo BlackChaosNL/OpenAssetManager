@@ -1,11 +1,8 @@
-import asyncio
+import asyncio, httpx, pytest
 from contextlib import asynccontextmanager
 from typing import AsyncGenerator
-import httpx, pytest
-from tortoise import Tortoise
 from asgi_lifespan import LifespanManager
 
-from database import migrate_db
 from tests.fixtures.account import *
 
 try:
@@ -30,13 +27,6 @@ def event_loop():
     loop = asyncio.get_event_loop()
     yield loop
     loop.close()
-
-
-@pytest.fixture
-async def use_database_during_testing():
-    await migrate_db()
-    yield
-    await Tortoise._drop_databases()
 
 
 @asynccontextmanager

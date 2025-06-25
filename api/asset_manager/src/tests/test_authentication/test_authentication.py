@@ -10,7 +10,6 @@ crypt = settings.CRYPT
 
 
 class TestAuthentication(Test):
-    @pytest.mark.asyncio
     async def test_authentication_with_non_existing_user_and_password(
         self, client: AsyncClient
     ):
@@ -25,7 +24,6 @@ class TestAuthentication(Test):
         assert response.status_code == 401
         assert response.json() == {"detail": "E-Mail Address or password is incorrect"}
 
-    @pytest.mark.asyncio
     async def test_authentication_with_existing_user_and_wrong_password(
         self, client: AsyncClient, create_user_with_org
     ):
@@ -41,7 +39,6 @@ class TestAuthentication(Test):
         assert response.status_code == 401
         assert response.json() == {"detail": "E-Mail Address or password is incorrect"}
 
-    @pytest.mark.asyncio
     async def test_authentication_with_existing_user_and_password(
         self, client: AsyncClient, create_user_with_org
     ):
@@ -69,19 +66,19 @@ class TestAuthentication(Test):
             }
         }
 
-    @pytest.mark.asyncio
     async def test_logging_out_destroys_tokens(
         self, client: AsyncClient, create_user_with_org
     ):
-        user, _, _, _ = await create_user_with_org(email="user@localhost.com", password="userpassword")
+        user, _, _, _ = await create_user_with_org(email="superuser@localhost.com", password="superuser")
         response = await client.post(
             "https://localhost/api/v1/auth/login",
             data={
-                "username": "user@localhost.com",
-                "password": "userpassword",
+                "username": "superuser@localhost.com",
+                "password": "superuser",
                 "grant_type": "password",
             },
         )
+        print(response.json())
         assert response.status_code == 200
         assert response.json() == {
             "jwt": {
@@ -116,7 +113,6 @@ class TestAuthentication(Test):
             "detail": "Refresh token not found or something went wrong."
         }
 
-    @pytest.mark.asyncio
     async def test_create_new_tokens_upon_refresh(
         self, client: AsyncClient, create_user_with_org
     ):
@@ -166,7 +162,6 @@ class TestAuthentication(Test):
             }
         }
 
-    @pytest.mark.asyncio
     async def test_setup_new_account(self, client: AsyncClient):
         # Ensure account is never available. Prevents account already being available.
         check_if_account_exists: User | None = await User.filter(

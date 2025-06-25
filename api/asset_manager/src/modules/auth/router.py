@@ -31,7 +31,9 @@ async def login(form: Annotated[OAuth2PasswordRequestForm, Depends()]):
 
     Logs the user into our API, creates tokens and passes them back to User.
     """
-    user: User | None = await User.filter(email=form.username).first()
+    user: User | None = await User.filter(Q(email=form.username) | Q(username=form.username)).first()
+
+    print(user)
 
     if user is None:
         raise HTTPException(status_code=401, detail=account_error)
