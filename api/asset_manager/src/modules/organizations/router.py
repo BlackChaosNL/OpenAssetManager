@@ -112,13 +112,20 @@ async def update_organization(
         )
 
     org: Organization = await Organization.get(id=org_id)
-    org.name = alter_organization.name
-    org.type = alter_organization.type
-    org.street_name = alter_organization.street_name
-    org.zip_code = alter_organization.zip_code
-    org.state = alter_organization.state
-    org.city = alter_organization.city
-    org.country = alter_organization.country
+    if alter_organization.name:
+        org.name = alter_organization.name
+    if alter_organization.type:
+        org.type = alter_organization.type
+    if alter_organization.street_name:
+        org.street_name = alter_organization.street_name
+    if alter_organization.zip_code:
+        org.zip_code = alter_organization.zip_code
+    if alter_organization.state:
+        org.state = alter_organization.state
+    if alter_organization.city:
+        org.city = alter_organization.city
+    if alter_organization.country:
+        org.country = alter_organization.country
     await org.save()
 
     return org
