@@ -18,6 +18,11 @@ CREATE TABLE IF NOT EXISTS "organization" (
     "id" CHAR(36) NOT NULL PRIMARY KEY,
     "name" VARCHAR(128) NOT NULL,
     "type" VARCHAR(128) NOT NULL,
+    "street_name" TEXT,
+    "zip_code" VARCHAR(128),
+    "state" VARCHAR(128),
+    "city" VARCHAR(128),
+    "country" VARCHAR(128),
     "disabled" INT NOT NULL DEFAULT 0
 ) /* Organization */;
 CREATE TABLE IF NOT EXISTS "user" (
