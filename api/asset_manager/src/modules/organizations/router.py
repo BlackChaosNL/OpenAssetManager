@@ -20,11 +20,10 @@ router = APIRouter(prefix="/api/v1/organizations", tags=["orgs"])
 async def all_active_organizations(
     user: Annotated[User, Depends(get_current_active_user)],
 ) -> List[Organization]:
-    memberships: List[Membership] = list(
-        await Membership.filter(
-            Q(user_id=user.id) & Q(disabled=False)
-        ).prefetch_related("organization")
-    )
+    memberships: List[Membership] = await Membership.filter(
+        Q(user_id=user.id) & Q(disabled=False)
+    ).prefetch_related("organization")
+
     organizations: List[Organization] = []
 
     if len(memberships) < 1:
@@ -59,7 +58,7 @@ async def delete_organization(
         for member in all_memberships:
             await member.acl.delete()
             await member.delete()
-        
+
     await membership.acl.delete()
     await membership.delete()
     return

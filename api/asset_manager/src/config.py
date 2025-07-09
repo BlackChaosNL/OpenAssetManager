@@ -1,8 +1,6 @@
 from fastapi.security import OAuth2PasswordBearer
-from pydantic_settings import BaseSettings, SettingsConfigDict  # type: ignore
-from passlib.context import CryptContext  # type: ignore
-import pytz
-
+from pydantic_settings import BaseSettings, SettingsConfigDict
+from pwdlib import PasswordHash
 class Settings(BaseSettings):
     PROJECT_NAME: str = "StoneEdge Asset Management System"
     PROJECT_VERSION: str = "0.0.1"
@@ -19,7 +17,7 @@ class Settings(BaseSettings):
     ACCESS_TOKEN_EXPIRE_MIN: int = 10
     REFRESH_TOKEN_EXPIRE_MIN: int = 20
     BACKEND_CORS_ORIGINS: list = ["*"]
-    CRYPT: CryptContext = CryptContext(schemes=["bcrypt"], deprecated="auto")
+    CRYPT: PasswordHash = PasswordHash.recommended()
     OAUTH2_SCHEME: OAuth2PasswordBearer = OAuth2PasswordBearer(tokenUrl="token")
 
     model_config = SettingsConfigDict(env_file=".env")
