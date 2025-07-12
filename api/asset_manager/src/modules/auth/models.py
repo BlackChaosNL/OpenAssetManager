@@ -4,11 +4,8 @@ from tortoise import fields
 import uuid
 from datetime import datetime
 
-from mixins.CMDMixin import CMDMixin
-from config import settings
 
-
-class Token(Model, CMDMixin):
+class Token(Model):
     """
     Token
 
@@ -21,9 +18,11 @@ class Token(Model, CMDMixin):
     access_token: str = fields.TextField(null=True)
     refresh_token: str = fields.TextField(null=True)
     disabled: bool = fields.BooleanField(default=False)
+    created_at = fields.DatetimeField(null=True, auto_now_add=True)
+    modified_at = fields.DatetimeField(null=True, auto_now=True)
+    disabled_at = fields.DatetimeField(null=True)
 
     async def delete(self) -> None:
         self.disabled = True
         self.disabled_at = datetime.now(tz=pytz.UTC)
         await self.save()
-

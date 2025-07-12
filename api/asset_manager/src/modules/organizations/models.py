@@ -7,7 +7,6 @@ from tortoise.exceptions import ConfigurationError
 from tortoise.models import Model
 from tortoise import fields
 
-from mixins.CMDMixin import CMDMixin
 
 class EnumField(fields.CharField):
     """
@@ -52,8 +51,7 @@ class OrganizationType(Enum):
     EXTRA_LARGE_ORGANIZATION: str = "xl_org"  # 1000 - 5000+
 
 
-
-class Organization(Model, CMDMixin):
+class Organization(Model):
     """
     Organization
 
@@ -79,6 +77,9 @@ class Organization(Model, CMDMixin):
         on_delete=fields.NO_ACTION,
     )
     disabled: bool = fields.BooleanField(default=False)
+    created_at = fields.DatetimeField(null=True, auto_now_add=True)
+    modified_at = fields.DatetimeField(null=True, auto_now=True)
+    disabled_at = fields.DatetimeField(null=True)
 
     def __str__(self) -> str:
         return f"{self.id} - {self.name}"
@@ -90,5 +91,3 @@ class Organization(Model, CMDMixin):
             self.disabled = True
             self.disabled_at = datetime.now(tz=pytz.UTC)
             await self.save()
-
-

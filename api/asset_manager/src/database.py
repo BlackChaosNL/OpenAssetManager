@@ -8,6 +8,7 @@ modules: dict[str, Any] = {
         "modules.auth.models",
         "modules.users.models",
         "modules.organizations.models",
+        "modules.invitations.models",
     ]
 }
 

@@ -6,13 +6,12 @@ from tortoise.models import Model
 from tortoise import fields
 
 from modules.organizations.models import Organization
-from mixins.CMDMixin import CMDMixin
 from config import settings
 
 crypt = settings.CRYPT
 
 
-class User(Model, CMDMixin):
+class User(Model):
     """
     User
 
@@ -35,7 +34,9 @@ class User(Model, CMDMixin):
         on_delete=fields.NO_ACTION,
     )
     disabled: bool = fields.BooleanField(default=False)
-    # tokens = fields.ForeignKeyField("models.Token")
+    created_at = fields.DatetimeField(null=True, auto_now_add=True)
+    modified_at = fields.DatetimeField(null=True, auto_now=True)
+    disabled_at = fields.DatetimeField(null=True)
 
     def __str__(self) -> str:
         return f"{self.id} - {self.name} {self.surname}"
@@ -90,7 +91,7 @@ class ACL(Model):
         """
 
 
-class Membership(Model, CMDMixin):
+class Membership(Model):
     """
     Membership
 
@@ -98,10 +99,13 @@ class Membership(Model, CMDMixin):
     """
 
     id: uuid.UUID = fields.UUIDField(primary_key=True)
-    organization: Organization = fields.ForeignKeyField("models.Organization")
-    user: User = fields.ForeignKeyField("models.User")
+    organization: Organization = fields.ForeignKeyField("models.Organization", null=True, on_delete=fields.SET_NULL)
+    user: User = fields.ForeignKeyField("models.User", null=True, on_delete=fields.SET_NULL)
     acl: ACL = fields.ForeignKeyField("models.ACL")
     disabled: bool = fields.BooleanField(default=False)
+    created_at = fields.DatetimeField(null=True, auto_now_add=True)
+    modified_at = fields.DatetimeField(null=True, auto_now=True)
+    disabled_at = fields.DatetimeField(null=True)
 
     async def delete(self, force: bool = False) -> None:
         if force:

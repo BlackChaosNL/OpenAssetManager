@@ -1,11 +1,8 @@
 from httpx import AsyncClient
 from modules.users.models import ACL, Membership
 from modules.organizations.models import Organization
-from config import settings
 from unittest.mock import ANY
 from tests.base_test import Test
-
-crypt = settings.CRYPT
 
 
 class TestOrganizationRoute(Test):
@@ -153,9 +150,7 @@ class TestOrganizationRoute(Test):
             READ=True, WRITE=True, REPORT=True, MANAGE=False, ADMIN=False
         )
 
-        await Membership.create(
-            user=user, organization=organization, acl=acl
-        )
+        await Membership.create(user=user, organization=organization, acl=acl)
 
         deleted_org = await client.delete(
             f"https://localhost/api/v1/organizations/{organization.id}",

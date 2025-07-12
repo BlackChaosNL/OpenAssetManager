@@ -1,6 +1,5 @@
 from tests.base_test import Test
 from modules.users.models import User
-import pytest  # type: ignore
 from httpx import AsyncClient
 from config import settings
 from unittest.mock import ANY
