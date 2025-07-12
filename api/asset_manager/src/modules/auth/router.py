@@ -1,13 +1,12 @@
 from datetime import datetime
 from typing import Annotated
-import uuid
 from fastapi.security import OAuth2PasswordRequestForm
 from fastapi.routing import APIRouter
 import pytz
 from modules.users.utils import get_current_active_user
+from modules.users.models import User
 from modules.auth.utils import create_jwt_tokens, get_tokens_from_logged_in_user
 from modules.auth.models import Token
-from modules.users.models import User
 from fastapi import Depends, HTTPException, status
 from tortoise.expressions import Q
 from config import settings
@@ -31,23 +30,31 @@ async def login(form: Annotated[OAuth2PasswordRequestForm, Depends()]):
 
     Logs the user into our API, creates tokens and passes them back to User.
     """
-    user: User | None = await User.filter(Q(email=form.username) | Q(username=form.username)).first()
+    user: User | None = await User.filter(
+        Q(email=form.username) | Q(username=form.username)
+    ).first()
 
     if user is None:
-        raise HTTPException(status_code=401, detail=account_error)
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED, detail=account_error
+        )
 
     if user.check_against_password(form.password) is False:
-        raise HTTPException(status_code=401, detail=account_error)
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED, detail=account_error
+        )
 
     if user.disabled is True:
-        raise HTTPException(status_code=401, detail=account_error)
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED, detail=account_error
+        )
 
     tokens = await create_jwt_tokens(user)
 
     return {"jwt": tokens}
 
 
-@router.get("/logout", status_code=204)
+@router.get("/logout", status_code=status.HTTP_204_NO_CONTENT)
 async def logout(user: Annotated[User, Depends(get_current_active_user)]):
     """
     Logout
@@ -110,7 +117,9 @@ async def refresh_login(
     return {"jwt": tokens}
 
 
-@router.post("/register", status_code=201, response_model=user_model)
+@router.post(
+    "/register", status_code=status.HTTP_201_CREATED, response_model=user_model
+)
 async def register(user: register_model):
     # Prevent existing users from reapplying for our system.
     existing_user: User | None = await User.filter(

@@ -55,8 +55,8 @@ CREATE TABLE IF NOT EXISTS "membership" (
     "modified_at" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     "disabled_at" TIMESTAMP,
     "acl_id" CHAR(36) NOT NULL REFERENCES "acl" ("id") ON DELETE CASCADE,
-    "organization_id" CHAR(36) NOT NULL REFERENCES "organization" ("id") ON DELETE CASCADE,
-    "user_id" CHAR(36) NOT NULL REFERENCES "user" ("id") ON DELETE CASCADE
+    "organization_id" CHAR(36) REFERENCES "organization" ("id") ON DELETE SET NULL,
+    "user_id" CHAR(36) REFERENCES "user" ("id") ON DELETE SET NULL
 ) /* Membership */;
 CREATE TABLE IF NOT EXISTS "invite" (
     "id" CHAR(36) NOT NULL PRIMARY KEY,
@@ -64,11 +64,12 @@ CREATE TABLE IF NOT EXISTS "invite" (
     "sender" CHAR(36) NOT NULL,
     "org_id" CHAR(36) NOT NULL,
     "message" TEXT,
-    "accepted" INT NOT NULL,
+    "accepted" INT NOT NULL DEFAULT 0,
     "disabled" INT NOT NULL DEFAULT 0,
     "created_at" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     "modified_at" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    "disabled_at" TIMESTAMP
+    "disabled_at" TIMESTAMP,
+    "acl_id" CHAR(36) NOT NULL REFERENCES "acl" ("id") ON DELETE CASCADE
 );
 CREATE TABLE IF NOT EXISTS "aerich" (
     "id" INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,

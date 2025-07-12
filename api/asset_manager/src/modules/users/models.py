@@ -99,8 +99,8 @@ class Membership(Model):
     """
 
     id: uuid.UUID = fields.UUIDField(primary_key=True)
-    organization: Organization = fields.ForeignKeyField("models.Organization")
-    user: User = fields.ForeignKeyField("models.User")
+    organization: Organization = fields.ForeignKeyField("models.Organization", null=True, on_delete=fields.SET_NULL)
+    user: User = fields.ForeignKeyField("models.User", null=True, on_delete=fields.SET_NULL)
     acl: ACL = fields.ForeignKeyField("models.ACL")
     disabled: bool = fields.BooleanField(default=False)
     created_at = fields.DatetimeField(null=True, auto_now_add=True)
