@@ -27,11 +27,12 @@ async def get_all_invitations(
         List[Invite]: A list of invitations.
     """
     return await Invite.filter(
-        Q(receiver=user.username) | Q(receiver=user.email) & Q(disabled=False)
+        (Q(sender=user.id) | (Q(receiver=user.username) | Q(receiver=user.email)))
+        & Q(disabled=False)
     )
 
 
-@router.delete("/{invitation_id}", response_model=invitation_model)
+@router.delete("/{invitation_id}", status_code=status.HTTP_204_NO_CONTENT)
 async def delete_invitation(
     user: Annotated[User, Depends(get_current_active_user)], invitation_id: uuid.UUID
 ) -> None:
@@ -58,7 +59,6 @@ async def delete_invitation(
         )
 
     await invite.delete()
-    return invite
 
 
 @router.get("/accept/{invitation_id}", status_code=status.HTTP_204_NO_CONTENT)

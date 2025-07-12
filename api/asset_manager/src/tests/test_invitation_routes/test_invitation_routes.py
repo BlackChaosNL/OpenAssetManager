@@ -104,6 +104,96 @@ class TestInvitationalRoutes(Test):
         assert user_invites.status_code == 200
         assert user_invites.json() == []
 
+    async def test_removing_invitations(
+        self, client: AsyncClient, create_user_with_org
+    ):
+        admin, org, _, admintokens = await create_user_with_org(
+            email="superadmin9999@localhost.com",
+            username="awesomeadmin",
+            password="awesomeadmin",
+            is_admin=True,
+        )
+
+        invite = await client.post(
+            "https://localhost/api/v1/invitations/send",
+            json={
+                "org_id": str(org.id),
+                "receiver": "user9487@localhost.com",
+                "acl": None,
+                "message": "Hi! We would like to invite you to our organization.",
+            },
+            headers={"Authorization": f"Bearer {admintokens.access_token}"},
+        )
+
+        assert invite.status_code == 200
+        assert invite.json() == {
+            "accepted": False,
+            "created_at": ANY,
+            "disabled": False,
+            "disabled_at": None,
+            "id": ANY,
+            "message": "Hi! We would like to invite you to our organization.",
+            "modified_at": ANY,
+            "org_id": str(org.id),
+            "receiver": "user9487@localhost.com",
+            "sender": str(admin.id),
+        }
+
+        invite_id = invite.json()["id"]
+        removed_invite = await client.delete(
+            f"https://localhost/api/v1/invitations/{invite_id}",
+            headers={"Authorization": f"Bearer {admintokens.access_token}"},
+        )
+
+        assert removed_invite.status_code == 204
+
+
+    async def test_cannot_accept_own_invite(
+        self, client: AsyncClient, create_user_with_org
+    ):
+        admin, org, _, admintokens = await create_user_with_org(
+            email="superadmin18569@localhost.com",
+            username="awesomeadmin",
+            password="awesomeadmin",
+            is_admin=True,
+        )
+
+        invite = await client.post(
+            "https://localhost/api/v1/invitations/send",
+            json={
+                "org_id": str(org.id),
+                "receiver": "non-existing-user@localhost.com",
+                "acl": None,
+                "message": "Hi! We would like to invite you to our organization.",
+            },
+            headers={"Authorization": f"Bearer {admintokens.access_token}"},
+        )
+
+        assert invite.status_code == 200
+        assert invite.json() == {
+            "accepted": False,
+            "created_at": ANY,
+            "disabled": False,
+            "disabled_at": None,
+            "id": ANY,
+            "message": "Hi! We would like to invite you to our organization.",
+            "modified_at": ANY,
+            "org_id": str(org.id),
+            "receiver": "non-existing-user@localhost.com",
+            "sender": str(admin.id),
+        }
+
+        invite_id = invite.json()["id"]
+        try_accept_invite = await client.get(
+            f"https://localhost/api/v1/invitations/accept/{invite_id}",
+            headers={"Authorization": f"Bearer {admintokens.access_token}"},
+        )
+
+        assert try_accept_invite.status_code == 403
+        assert try_accept_invite.json() == {
+            "detail": "The invitation doesn't exist or you don't have access to it."
+        }
+
     async def test_accept_sent_invitations(
         self, client: AsyncClient, create_user_with_org
     ):
