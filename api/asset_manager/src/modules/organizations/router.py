@@ -1,5 +1,5 @@
 import uuid
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, status
 
 from typing import Annotated, List
 
@@ -27,7 +27,7 @@ async def all_active_organizations(
     organizations: List[Organization] = []
 
     if len(memberships) < 1:
-        raise HTTPException(status_code=404, detail="No active organizations found!")
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="No active organizations found!")
 
     for member in memberships:
         organizations.append(member.organization)
@@ -35,7 +35,7 @@ async def all_active_organizations(
     return organizations
 
 
-@router.delete("/{org_id}", status_code=204)
+@router.delete("/{org_id}", status_code=status.HTTP_204_NO_CONTENT)
 async def delete_organization(
     user: Annotated[User, Depends(get_current_active_user)], org_id: uuid.UUID
 ) -> None:

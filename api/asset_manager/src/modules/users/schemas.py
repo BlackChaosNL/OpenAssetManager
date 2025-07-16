@@ -21,3 +21,7 @@ class update_user_model(BaseModel):
     old_password: str | None
     password: str | None
     validate_password: str | None
+
+class delete_user_model(BaseModel):
+    password: str
+
