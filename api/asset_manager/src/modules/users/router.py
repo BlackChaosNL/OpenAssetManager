@@ -7,7 +7,7 @@ from tortoise.expressions import Q
 
 from modules.auth.models import Token
 from modules.users.utils import get_current_active_user
-from modules.users.schemas import delete_user_model, register_model, update_user_model
+from modules.users.schemas import register_model, update_user_model
 from modules.users.models import Membership, User
 from modules.users.schemas import user_model
 
