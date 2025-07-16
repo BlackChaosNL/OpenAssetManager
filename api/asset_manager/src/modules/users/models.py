@@ -1,5 +1,6 @@
 from datetime import datetime
 import uuid
+from fastapi import HTTPException, status
 from pydantic import EmailStr
 import pytz
 from tortoise.models import Model
@@ -41,9 +42,10 @@ class User(Model):
     def __str__(self) -> str:
         return f"{self.id} - {self.name} {self.surname}"
 
-    async def set_password(self, password: str) -> None:
+    async def set_password(self, password: str) -> bool:
         self.password = crypt.hash(password)
         await self.save()  # Make sure to save the model in DB
+        return True
 
     def check_against_password(self, password: str) -> bool:
         return crypt.verify(password, self.password)
@@ -55,7 +57,7 @@ class User(Model):
             return False
         if new_password is not verify_new_password:
             return False
-        await self.set_password(new_password)
+        return await self.set_password(new_password)
 
     async def delete(self, force: bool = False) -> None:
         if force:

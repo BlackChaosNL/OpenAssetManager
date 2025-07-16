@@ -6,7 +6,7 @@ from fastapi import HTTPException, status
 from tortoise.expressions import Q
 
 from modules.users.utils import get_current_active_user
-from modules.auth.schemas import register_model
+from modules.users.schemas import register_model, update_user_model
 from modules.users.models import User
 from modules.users.schemas import user_model
 
@@ -24,12 +24,13 @@ password_failed: str = "Password validation failed, please try again."
 @router.post("/", status_code=status.HTTP_201_CREATED, response_model=user_model)
 async def create_user(user: register_model):
     # Prevent existing users from reapplying for our system.
-    existing_user: User | None = await User.filter(
+    existing_user: User | None = await User.get_or_none(
         Q(email=user.email)
         & Q(username=user.username)
         & Q(name=user.name)
         & Q(surname=user.surname)
-    ).get_or_none()
+        & Q(disabled=False)
+    )
 
     if existing_user is not None:
         raise HTTPException(
@@ -50,6 +51,22 @@ async def create_user(user: register_model):
         surname=user.surname,
         password=crypt.hash(user.password),
     )
+
+
+@router.put("/me", status_code=status.HTTP_204_NO_CONTENT)
+async def update_user(user: Annotated[User, Depends(get_current_active_user)],
+                      updated_user: update_user_model):
+    if updated_user.email:
+        user.email = updated_user.email
+    if updated_user.name:
+        user.name = updated_user.name
+    if updated_user.surname:
+        user.surname = updated_user.surname
+
+    if updated_user.old_password and updated_user.password and updated_user.validate_password:
+        user.update_password(updated_user.old_password, updated_user.password, updated_user.validate_password)
+
+    await user.save()
 
 
 @router.get("/me", response_model=user_model)
