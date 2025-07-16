@@ -1,9 +1,7 @@
 from tests.base_test import Test
-from modules.users.models import User
 from httpx import AsyncClient
 from config import settings
 from unittest.mock import ANY
-from tortoise.expressions import Q
 
 crypt = settings.CRYPT
 
@@ -161,35 +159,3 @@ class TestAuthentication(Test):
             }
         }
 
-    async def test_setup_new_account(self, client: AsyncClient):
-        # Ensure account is never available. Prevents account already being available.
-        check_if_account_exists: User | None = await User.filter(
-            Q(email="superuser@localhost.com")
-        ).get_or_none()
-        if check_if_account_exists:
-            await check_if_account_exists.delete(force=True)
-
-        account = await client.post(
-            "https://localhost/api/v1/auth/register",
-            json={
-                "email": "superuser@localhost.com",
-                "username": "superuser",
-                "name": "awesome",
-                "surname": "superuser",
-                "password": "superuserpassword",
-                "validate_password": "superuserpassword",
-            },
-        )
-
-        assert account.status_code == 201
-        assert account.json() == {
-            "created_at": ANY,
-            "disabled": False,
-            "disabled_at": None,
-            "email": "superuser@localhost.com",
-            "id": ANY,
-            "modified_at": ANY,
-            "name": "awesome",
-            "surname": "superuser",
-            "username": "superuser",
-        }

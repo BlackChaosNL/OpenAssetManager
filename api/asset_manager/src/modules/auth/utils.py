@@ -61,7 +61,7 @@ async def create_jwt_tokens(user: User) -> Token:
 
 
 async def get_tokens_from_logged_in_user(
-    token: Annotated[str, Depends(settings.OAUTH2_SCHEME)]
+    token: Annotated[str, Depends(settings.OAUTH2_SCHEME)],
 ) -> User | None:
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
@@ -79,4 +79,6 @@ async def get_tokens_from_logged_in_user(
     except:
         raise credentials_exception
 
-    return await Token.filter(Q(refresh_token=token) & Q(user__id=user_id)).first()
+    return await Token.filter(
+        Q(refresh_token=token) & Q(user__id=user_id) & Q(disabled=False)
+    ).first()
