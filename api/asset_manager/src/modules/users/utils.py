@@ -10,7 +10,7 @@ from config import settings
 
 
 async def get_user_from_token(
-    token: Annotated[str, Depends(settings.OAUTH2_SCHEME)]
+    token: Annotated[str, Depends(settings.OAUTH2_SCHEME)],
 ) -> User | None:
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
@@ -28,7 +28,7 @@ async def get_user_from_token(
     except:
         raise credentials_exception
 
-    return await User.filter(Q(id=user_id)).first()
+    return await User.filter(Q(id=user_id) & Q(disabled=False)).first()
 
 
 async def get_current_active_user(
@@ -37,11 +37,6 @@ async def get_current_active_user(
     if user is None:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="User is not found or active",
-        )
-    if user.disabled:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="User is not found or active",
+            detail="The requested token does not exist or you are not logged in.",
         )
     return user

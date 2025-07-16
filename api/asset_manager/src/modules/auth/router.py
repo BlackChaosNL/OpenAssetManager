@@ -10,8 +10,6 @@ from modules.auth.models import Token
 from fastapi import Depends, HTTPException, status
 from tortoise.expressions import Q
 from config import settings
-from modules.users.schemas import user_model
-from modules.auth.schemas import register_model
 
 router = APIRouter(prefix="/api/v1/auth", tags=["auth"])
 
@@ -31,7 +29,7 @@ async def login(form: Annotated[OAuth2PasswordRequestForm, Depends()]):
     Logs the user into our API, creates tokens and passes them back to User.
     """
     user: User | None = await User.filter(
-        Q(email=form.username) | Q(username=form.username)
+        (Q(email=form.username) | Q(username=form.username)) & Q(disabled=False)
     ).first()
 
     if user is None:
@@ -40,11 +38,6 @@ async def login(form: Annotated[OAuth2PasswordRequestForm, Depends()]):
         )
 
     if user.check_against_password(form.password) is False:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED, detail=account_error
-        )
-
-    if user.disabled is True:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED, detail=account_error
         )
@@ -61,7 +54,7 @@ async def logout(user: Annotated[User, Depends(get_current_active_user)]):
 
     Logout destroys all tokens for User that are currently active.
     """
-    get_all_tokens = await Token.filter(Q(user__id=user.id))
+    get_all_tokens = await Token.filter(Q(user__id=user.id) & Q(disabled=False))
     if get_all_tokens is None:
         raise HTTPException(
             status_code=status.HTTP_204_NO_CONTENT, detail="An error occurred."
@@ -98,12 +91,6 @@ async def refresh_login(
             detail=token_error,
         )
 
-    if refresh_token.disabled is True:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail=token_error,
-        )
-
     get_all_tokens = await Token.filter(Q(user__id=refresh_token.user_id))
 
     for token in get_all_tokens:
@@ -115,36 +102,3 @@ async def refresh_login(
     )
 
     return {"jwt": tokens}
-
-
-@router.post(
-    "/register", status_code=status.HTTP_201_CREATED, response_model=user_model
-)
-async def register(user: register_model):
-    # Prevent existing users from reapplying for our system.
-    existing_user: User | None = await User.filter(
-        Q(email=user.email)
-        & Q(username=user.username)
-        & Q(name=user.name)
-        & Q(surname=user.surname)
-    ).get_or_none()
-
-    if existing_user is not None:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail=user_exists,
-        )
-
-    if user.password != user.validate_password:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail=password_failed,
-        )
-
-    return await User.create(
-        email=user.email,
-        username=user.username,
-        name=user.name,
-        surname=user.surname,
-        password=crypt.hash(user.password),
-    )
