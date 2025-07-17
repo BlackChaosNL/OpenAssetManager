@@ -1,26 +1,22 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import { render } from 'solid-js/web'
+import { Router, Route } from '@solidjs/router'
+import './App.css'
 
-function App() {
+import { Layout } from './components/layout/Layout'
+import { NotFound } from './components/statuses/NotFound'
+import { Home } from './components/home/Home'
+
+const AppRouter = () => {
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+    <Router root={Layout}>
+      <Route path="/" component={Home} />
+      <Route path="*404" component={NotFound} />
+    </Router>
+  )
 }
 
-export default App;
+render(
+  () => <AppRouter />,
+  document.getElementById('app')!
+)
+
